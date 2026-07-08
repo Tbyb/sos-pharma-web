@@ -14,6 +14,14 @@ import MedicamentDetailPage from '../pages/public/MedicamentDetailPage';
 import ComparaisonPrixPage from '../pages/public/ComparaisonPrixPage';
 import PharmaciesMapPage from '../pages/public/PharmaciesMapPage';
 
+import PanierPage from '../pages/patient/PanierPage';
+import CommandePage from '../pages/patient/CommandePage';
+import PaiementPage from '../pages/patient/PaiementPage';
+import MesCommandesPage from '../pages/patient/MesCommandesPage';
+import CommandeDetailPage from '../pages/patient/CommandeDetailPage';
+import ModifierCommandePage from '../pages/patient/ModifierCommandePage';
+import ProfilPage from '../pages/patient/ProfilPage';
+
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <h2 className="text-xl text-gris">{title}</h2>
@@ -36,10 +44,13 @@ export default function AppRouter() {
 
         {/* Routes patient (connecté + layout public) */}
         <Route element={<PrivateRoute />}>
-          <Route path="/patient/panier" element={<PlaceholderPage title="Mon panier" />} />
-          <Route path="/patient/commander" element={<PlaceholderPage title="Passer commande" />} />
-          <Route path="/patient/commandes" element={<PlaceholderPage title="Mes commandes" />} />
-          <Route path="/patient/profil" element={<PlaceholderPage title="Mon profil" />} />
+          <Route path="/patient/panier" element={<PanierPage />} />
+          <Route path="/patient/commander" element={<CommandePage />} />
+          <Route path="/patient/paiement/:id" element={<PaiementPage />} />
+          <Route path="/patient/commandes" element={<MesCommandesPage />} />
+          <Route path="/patient/commandes/:id" element={<CommandeDetailPage />} />
+          <Route path="/patient/commandes/:id/modifier" element={<ModifierCommandePage />} />
+          <Route path="/patient/profil" element={<ProfilPage />} />
         </Route>
       </Route>
 
