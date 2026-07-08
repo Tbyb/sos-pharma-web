@@ -15,6 +15,7 @@ export const COULEURS = {
 };
 
 export const STATUTS_COMMANDE = {
+  en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
   en_cours: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
   acceptee: { label: 'Acceptée', couleur: '#2563EB', fond: '#DBEAFE' },
   en_preparation: { label: 'En préparation', couleur: '#7C3AED', fond: '#EDE9FE' },
@@ -22,6 +23,7 @@ export const STATUTS_COMMANDE = {
   en_livraison: { label: 'En livraison', couleur: '#0891B2', fond: '#CFFAFE' },
   livree: { label: 'Livrée', couleur: '#16A34A', fond: '#DCFCE7' },
   retiree: { label: 'Retirée', couleur: '#16A34A', fond: '#DCFCE7' },
+  annulee: { label: 'Annulée', couleur: '#6B7280', fond: '#F3F4F6' },
   refusee: { label: 'Refusée', couleur: '#DC2626', fond: '#FEE2E2' },
 };
 

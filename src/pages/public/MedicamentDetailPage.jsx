@@ -26,11 +26,11 @@ export default function MedicamentDetailPage() {
   }
 
   const comparaisons = (medicament.stocks || []).map((stock) => ({
-    pharmacie_id: stock.pharmacie?.id,
-    pharmacie_nom: stock.pharmacie?.nomPharmacie,
-    pharmacie_adresse: stock.pharmacie?.addresse,
+    pharmacie_id: stock.pharmacie_id || stock.pharmacie?.id,
+    pharmacie_nom: stock.pharmacie?.nomPharmacie || stock.pharmacie_nom,
+    pharmacie_adresse: stock.pharmacie?.addresse || stock.pharmacie_adresse,
     prix: parseFloat(stock.prix_unitaire),
-    disponible: stock.disponible === 1,
+    disponible: stock.disponible === 1 || stock.disponible === true,
     quantite: stock.quantite,
   }));
 
