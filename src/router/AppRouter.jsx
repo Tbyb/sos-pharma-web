@@ -9,6 +9,11 @@ import PharmacienLayout from '../components/templates/PharmacienLayout';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 
+import HomePage from '../pages/public/HomePage';
+import MedicamentDetailPage from '../pages/public/MedicamentDetailPage';
+import ComparaisonPrixPage from '../pages/public/ComparaisonPrixPage';
+import PharmaciesMapPage from '../pages/public/PharmaciesMapPage';
+
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <h2 className="text-xl text-gris">{title}</h2>
@@ -24,10 +29,10 @@ export default function AppRouter() {
 
       {/* Pages publiques avec PublicLayout */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<PlaceholderPage title="Accueil - Recherche médicaments" />} />
-        <Route path="/medicaments/:id" element={<PlaceholderPage title="Détail médicament" />} />
-        <Route path="/comparaison" element={<PlaceholderPage title="Comparaison des prix" />} />
-        <Route path="/pharmacies" element={<PlaceholderPage title="Carte des pharmacies" />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/medicaments/:id" element={<MedicamentDetailPage />} />
+        <Route path="/comparaison" element={<ComparaisonPrixPage />} />
+        <Route path="/pharmacies" element={<PharmaciesMapPage />} />
 
         {/* Routes patient (connecté + layout public) */}
         <Route element={<PrivateRoute />}>
