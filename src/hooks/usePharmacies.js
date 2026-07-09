@@ -3,6 +3,7 @@ import {
   getPharmaciesAPI, getPharmacieAPI, getPharmaciesCatalogueAPI,
   getAdminPharmaciesAPI, accepterPharmacieAPI, refuserPharmacieAPI,
   suspendrePharmacieAPI, reactiverPharmacieAPI,
+  getMaPharmacieAPI, modifierMaPharmacieAPI,
 } from '../api/pharmacies.api';
 
 /**
@@ -72,4 +73,19 @@ export function useSuspendrePharmacie() {
 
 export function useReactiverPharmacie() {
   return useChangerStatutPharmacie((id) => reactiverPharmacieAPI(id).then((res) => res.data));
+}
+
+export function useMaPharmacie() {
+  return useQuery({
+    queryKey: ['ma-pharmacie'],
+    queryFn: () => getMaPharmacieAPI().then((res) => res.data),
+  });
+}
+
+export function useModifierMaPharmacie() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => modifierMaPharmacieAPI(data).then((res) => res.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ma-pharmacie'] }),
+  });
 }

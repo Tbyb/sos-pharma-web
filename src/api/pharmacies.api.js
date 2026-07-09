@@ -31,3 +31,11 @@ export function suspendrePharmacieAPI(id) {
 export function reactiverPharmacieAPI(id) {
   return axiosInstance.put(`/pharmacies/${id}/reactiver`);
 }
+
+export function getMaPharmacieAPI() {
+  return axiosInstance.get('/ma-pharmacie');
+}
+
+export function modifierMaPharmacieAPI(data) {
+  return axiosInstance.put('/ma-pharmacie/info', data);
+}

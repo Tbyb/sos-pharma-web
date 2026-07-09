@@ -8,6 +8,10 @@ import {
   modifierCommandeAPI,
   getAdminCommandesAPI,
   getAdminCommandeDetailAPI,
+  getCommandesPharmacieAPI,
+  accepterCommandeAPI,
+  refuserCommandeAPI,
+  marquerPreteAPI,
 } from '../api/commandes.api';
 
 export function useMesCommandes(params = {}) {
@@ -84,4 +88,34 @@ export function useAdminCommandeDetail(id) {
     queryFn: () => getAdminCommandeDetailAPI(id).then((res) => res.data),
     enabled: !!id,
   });
+}
+
+/**
+ * @param {{ statut?: string, page?: number }} params
+ */
+export function useCommandesPharmacie(params = {}) {
+  return useQuery({
+    queryKey: ['commandes-pharmacie', params],
+    queryFn: () => getCommandesPharmacieAPI(params).then((res) => res.data),
+  });
+}
+
+function useChangerStatutCommande(mutationFn) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['commandes-pharmacie'] }),
+  });
+}
+
+export function useAccepterCommande() {
+  return useChangerStatutCommande((id) => accepterCommandeAPI(id).then((res) => res.data));
+}
+
+export function useRefuserCommande() {
+  return useChangerStatutCommande((id) => refuserCommandeAPI(id).then((res) => res.data));
+}
+
+export function useMarquerPrete() {
+  return useChangerStatutCommande((id) => marquerPreteAPI(id).then((res) => res.data));
 }

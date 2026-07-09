@@ -29,6 +29,10 @@ import PharmacieDetailPage from '../pages/admin/PharmacieDetailPage';
 import CommandesPage from '../pages/admin/CommandesPage';
 import LivreursPage from '../pages/admin/LivreursPage';
 
+import CataloguePage from '../pages/pharmacien/CataloguePage';
+import CommandesPharmaciePage from '../pages/pharmacien/CommandesPharmaciePage';
+import MaPharmaciePage from '../pages/pharmacien/MaPharmaciePage';
+
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <h2 className="text-xl text-gris">{title}</h2>
@@ -77,9 +81,9 @@ export default function AppRouter() {
       {/* Routes pharmacien avec PharmacienLayout */}
       <Route element={<RoleRoute role="pharmacien" />}>
         <Route element={<PharmacienLayout />}>
-          <Route path="/pharmacien/catalogue" element={<PlaceholderPage title="Mon catalogue" />} />
-          <Route path="/pharmacien/commandes" element={<PlaceholderPage title="Mes commandes" />} />
-          <Route path="/pharmacien/pharmacie" element={<PlaceholderPage title="Ma pharmacie" />} />
+          <Route path="/pharmacien/catalogue" element={<CataloguePage />} />
+          <Route path="/pharmacien/commandes" element={<CommandesPharmaciePage />} />
+          <Route path="/pharmacien/pharmacie" element={<MaPharmaciePage />} />
         </Route>
       </Route>
 
