@@ -20,7 +20,7 @@ export default function MedicamentsPage() {
   const [medicamentEnEdition, setMedicamentEnEdition] = useState(null);
   const [message, setMessage] = useState(null);
 
-  const { data, isLoading } = useAdminMedicaments({ search: search || undefined, statut: statut || undefined, page });
+  const { data, isLoading, isError, error } = useAdminMedicaments({ search: search || undefined, statut: statut || undefined, page });
   const creer = useCreerMedicament();
   const modifier = useModifierMedicament();
   const desactiver = useDesactiverMedicament();
@@ -90,20 +90,27 @@ export default function MedicamentsPage() {
       </div>
 
       {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
+      {isError && (
+        <Alert variant="error" className="mb-4">
+          {error?.response?.data?.message || 'Impossible de charger les médicaments.'}
+        </Alert>
+      )}
 
       <div className="mb-4">
         <FilterBar search={search} onSearchChange={handleSearchChange} statut={statut} onStatutChange={handleStatutChange} />
       </div>
 
-      <MedicamentsTable
-        medicaments={medicaments}
-        isLoading={isLoading}
-        onEdit={ouvrirEdition}
-        onDesactiver={handleDesactiver}
-        onReactiver={handleReactiver}
-      />
+      {!isError && (
+        <MedicamentsTable
+          medicaments={medicaments}
+          isLoading={isLoading}
+          onEdit={ouvrirEdition}
+          onDesactiver={handleDesactiver}
+          onReactiver={handleReactiver}
+        />
+      )}
 
-      {totalPages > 1 && (
+      {!isError && totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <Pagination currentPage={meta.current_page || page} totalPages={totalPages} onPageChange={setPage} />
         </div>

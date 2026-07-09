@@ -22,7 +22,7 @@ export default function PharmaciesPage() {
   const [confirmation, setConfirmation] = useState(null);
   const [message, setMessage] = useState(null);
 
-  const { data, isLoading } = useAdminPharmacies({ statut: onglet, page });
+  const { data, isLoading, isError, error } = useAdminPharmacies({ statut: onglet, page });
   const certifier = useAccepterPharmacie();
   const refuser = useRefuserPharmacie();
   const suspendre = useSuspendrePharmacie();
@@ -59,6 +59,11 @@ export default function PharmaciesPage() {
       <h1 className="text-2xl font-bold text-noir mb-6">Gestion des pharmacies</h1>
 
       {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
+      {isError && (
+        <Alert variant="error" className="mb-4">
+          {error?.response?.data?.message || 'Impossible de charger les pharmacies.'}
+        </Alert>
+      )}
 
       <div className="flex gap-1 bg-gris-clair rounded-lg p-1 mb-4 w-fit">
         {ONGLETS.map((o) => (
@@ -74,16 +79,18 @@ export default function PharmaciesPage() {
         ))}
       </div>
 
-      <PharmaciesList
-        pharmacies={pharmacies}
-        isLoading={isLoading}
-        onCertifier={demanderConfirmation('certifier')}
-        onRefuser={demanderConfirmation('refuser')}
-        onSuspendre={demanderConfirmation('suspendre')}
-        onReactiver={demanderConfirmation('reactiver')}
-      />
+      {!isError && (
+        <PharmaciesList
+          pharmacies={pharmacies}
+          isLoading={isLoading}
+          onCertifier={demanderConfirmation('certifier')}
+          onRefuser={demanderConfirmation('refuser')}
+          onSuspendre={demanderConfirmation('suspendre')}
+          onReactiver={demanderConfirmation('reactiver')}
+        />
+      )}
 
-      {totalPages > 1 && (
+      {!isError && totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <Pagination currentPage={meta.current_page || page} totalPages={totalPages} onPageChange={setPage} />
         </div>
