@@ -6,6 +6,7 @@ import CommandeDetails from '../../components/molecules/CommandeDetails';
 import Modal from '../../components/atoms/Modal';
 import Skeleton from '../../components/atoms/Skeleton';
 import Pagination from '../../components/atoms/Pagination';
+import Alert from '../../components/atoms/Alert';
 import { STATUTS_COMMANDE } from '../../utils/constants';
 
 const FILTRES_INITIAUX = { statut: '', idPharmacie: '', date_debut: '', date_fin: '' };
@@ -15,7 +16,7 @@ export default function CommandesPage() {
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState(null);
 
-  const { data, isLoading } = useAdminCommandes({
+  const { data, isLoading, isError, error } = useAdminCommandes({
     statut: filtres.statut || undefined,
     idPharmacie: filtres.idPharmacie || undefined,
     date_debut: filtres.date_debut || undefined,
@@ -38,6 +39,12 @@ export default function CommandesPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-noir mb-6">Commandes</h1>
+
+      {isError && (
+        <Alert variant="error" className="mb-4">
+          {error?.response?.data?.message || 'Impossible de charger les commandes.'}
+        </Alert>
+      )}
 
       <div className="flex flex-wrap gap-3 mb-4">
         <select
@@ -80,9 +87,11 @@ export default function CommandesPage() {
         />
       </div>
 
-      <CommandesTable commandes={commandes} isLoading={isLoading} onRowClick={(c) => setSelectedId(c.id)} />
+      {!isError && (
+        <CommandesTable commandes={commandes} isLoading={isLoading} onRowClick={(c) => setSelectedId(c.id)} />
+      )}
 
-      {totalPages > 1 && (
+      {!isError && totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <Pagination currentPage={meta.current_page || page} totalPages={totalPages} onPageChange={setPage} />
         </div>
