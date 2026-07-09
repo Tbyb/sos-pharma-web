@@ -63,7 +63,14 @@ export default function CataloguePage() {
     if (!fichier) return;
 
     importer.mutate(fichier, {
-      onSuccess: (res) => setMessage({ type: 'success', text: res?.data?.message || 'Import terminé avec succès.' }),
+      onSuccess: (res) => {
+        const { importes = 0, erreurs = [] } = res?.data || {};
+        setMessage({
+          type: erreurs.length ? 'warning' : 'success',
+          text: `${importes} médicament(s) importé(s) dans le catalogue.`,
+          details: erreurs,
+        });
+      },
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || "Erreur lors de l'import." }),
     });
   };
@@ -83,7 +90,16 @@ export default function CataloguePage() {
         </div>
       </div>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
+      {message && (
+        <Alert variant={message.type} className="mb-4">
+          <p>{message.text}</p>
+          {message.details?.length > 0 && (
+            <ul className="list-disc list-inside mt-1 space-y-0.5">
+              {message.details.map((detail, i) => <li key={i}>{detail}</li>)}
+            </ul>
+          )}
+        </Alert>
+      )}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger le catalogue.'}
