@@ -29,7 +29,7 @@ export const STATUTS_COMMANDE = {
 
 export const STATUTS_PHARMACIE = {
   en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  certifiee: { label: 'Certifiée', couleur: '#16A34A', fond: '#DCFCE7' },
+  active: { label: 'Certifiée', couleur: '#16A34A', fond: '#DCFCE7' },
   refusee: { label: 'Refusée', couleur: '#DC2626', fond: '#FEE2E2' },
   suspendue: { label: 'Suspendue', couleur: '#6B7280', fond: '#F3F4F6' },
 };

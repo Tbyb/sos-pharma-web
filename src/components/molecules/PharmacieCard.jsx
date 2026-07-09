@@ -9,15 +9,15 @@ export default function PharmacieCard({ pharmacie, onClick }) {
       onClick={onClick}
       className="bg-white rounded-lg shadow-card p-4 hover:shadow-md transition-shadow cursor-pointer"
     >
-      <h3 className="font-medium text-noir text-sm">{pharmacie.nom}</h3>
+      <h3 className="font-medium text-noir text-sm">{pharmacie.nomPharmacie}</h3>
       <div className="flex items-center gap-1 mt-2 text-xs text-gris">
         <MapPin className="w-3.5 h-3.5" />
-        <span className="truncate">{pharmacie.adresse}</span>
+        <span className="truncate">{pharmacie.addresse}</span>
       </div>
-      {pharmacie.telephone && (
+      {pharmacie.numTel && (
         <div className="flex items-center gap-1 mt-1 text-xs text-gris">
           <Clock className="w-3.5 h-3.5" />
-          <span>{pharmacie.telephone}</span>
+          <span>{pharmacie.numTel}</span>
         </div>
       )}
     </div>

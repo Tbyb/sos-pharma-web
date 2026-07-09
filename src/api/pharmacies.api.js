@@ -11,3 +11,23 @@ export function getPharmacieAPI(id) {
 export function getPharmaciesCatalogueAPI(id) {
   return axiosInstance.get(`/pharmacies/${id}/catalogue`);
 }
+
+export function getAdminPharmaciesAPI(params = {}) {
+  return axiosInstance.get('/admin/pharmacies', { params });
+}
+
+export function accepterPharmacieAPI(id) {
+  return axiosInstance.put(`/pharmacies/${id}/accepter`);
+}
+
+export function refuserPharmacieAPI(id) {
+  return axiosInstance.put(`/pharmacies/${id}/refuser`);
+}
+
+export function suspendrePharmacieAPI(id) {
+  return axiosInstance.put(`/pharmacies/${id}/suspendre`);
+}
+
+export function reactiverPharmacieAPI(id) {
+  return axiosInstance.put(`/pharmacies/${id}/reactiver`);
+}

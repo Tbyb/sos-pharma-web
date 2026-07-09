@@ -6,6 +6,7 @@ import {
   annulerCommandeAPI,
   supprimerCommandeAPI,
   modifierCommandeAPI,
+  getAdminCommandesAPI,
 } from '../api/commandes.api';
 
 export function useMesCommandes(params = {}) {
@@ -60,5 +61,15 @@ export function useModifierCommande() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mes-commandes'] });
     },
+  });
+}
+
+/**
+ * @param {{ idPharmacie?: number|string, statut?: string, page?: number }} params
+ */
+export function useAdminCommandes(params = {}) {
+  return useQuery({
+    queryKey: ['admin-commandes', params],
+    queryFn: () => getAdminCommandesAPI(params).then((res) => res.data),
   });
 }
