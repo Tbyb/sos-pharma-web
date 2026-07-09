@@ -26,6 +26,8 @@ import DashboardPage from '../pages/admin/DashboardPage';
 import MedicamentsPage from '../pages/admin/MedicamentsPage';
 import PharmaciesPage from '../pages/admin/PharmaciesPage';
 import PharmacieDetailPage from '../pages/admin/PharmacieDetailPage';
+import CommandesPage from '../pages/admin/CommandesPage';
+import LivreursPage from '../pages/admin/LivreursPage';
 
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -66,8 +68,8 @@ export default function AppRouter() {
           <Route path="/admin/medicaments" element={<MedicamentsPage />} />
           <Route path="/admin/pharmacies" element={<PharmaciesPage />} />
           <Route path="/admin/pharmacies/:id" element={<PharmacieDetailPage />} />
-          <Route path="/admin/livreurs" element={<PlaceholderPage title="Gestion livreurs" />} />
-          <Route path="/admin/commandes" element={<PlaceholderPage title="Commandes" />} />
+          <Route path="/admin/livreurs" element={<LivreursPage />} />
+          <Route path="/admin/commandes" element={<CommandesPage />} />
           <Route path="/admin/transactions" element={<PlaceholderPage title="Transactions" />} />
         </Route>
       </Route>
