@@ -31,3 +31,19 @@ export function getAdminCommandesAPI(params = {}) {
 export function getAdminCommandeDetailAPI(id) {
   return axiosInstance.get(`/admin/commandes/${id}`);
 }
+
+export function getCommandesPharmacieAPI(params = {}) {
+  return axiosInstance.get('/commandes', { params });
+}
+
+export function accepterCommandeAPI(id) {
+  return axiosInstance.put(`/commandes/${id}/accepter`);
+}
+
+export function refuserCommandeAPI(id) {
+  return axiosInstance.put(`/commandes/${id}/refuser`);
+}
+
+export function marquerPreteAPI(id) {
+  return axiosInstance.put(`/commandes/${id}/pret`);
+}

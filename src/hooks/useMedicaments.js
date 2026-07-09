@@ -3,6 +3,7 @@ import {
   getMedicamentsAPI, getMedicamentAPI, getComparaisonPrixAPI,
   getAdminMedicamentsAPI, creerMedicamentAPI, modifierMedicamentAPI,
   desactiverMedicamentAPI, reactiverMedicamentAPI,
+  getReferentielPharmacienAPI,
 } from '../api/medicaments.api';
 
 /**
@@ -76,5 +77,15 @@ export function useReactiverMedicament() {
   return useMutation({
     mutationFn: (id) => reactiverMedicamentAPI(id).then((res) => res.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-medicaments'] }),
+  });
+}
+
+/**
+ * @param {{ search?: string }} params
+ */
+export function useReferentielPharmacien(params = {}) {
+  return useQuery({
+    queryKey: ['referentiel-pharmacien', params],
+    queryFn: () => getReferentielPharmacienAPI(params).then((res) => res.data),
   });
 }

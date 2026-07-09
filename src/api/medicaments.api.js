@@ -31,3 +31,7 @@ export function desactiverMedicamentAPI(id) {
 export function reactiverMedicamentAPI(id) {
   return axiosInstance.patch(`/medicaments/${id}/reactiver`);
 }
+
+export function getReferentielPharmacienAPI(params = {}) {
+  return axiosInstance.get('/ma-pharmacie/referentiel', { params });
+}
