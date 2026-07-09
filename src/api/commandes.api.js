@@ -23,3 +23,7 @@ export function supprimerCommandeAPI(id) {
 export function modifierCommandeAPI(id, data) {
   return axiosInstance.put(`/commandes/${id}`, data);
 }
+
+export function getAdminCommandesAPI(params = {}) {
+  return axiosInstance.get('/admin/commandes', { params });
+}

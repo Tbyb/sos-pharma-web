@@ -258,7 +258,7 @@ export default function PharmaciesMapPage() {
               className={`rounded-lg transition-colors ${selected?.id === pharma.id ? 'ring-2 ring-bleu' : ''}`}
             >
               <PharmacieCard
-                pharmacie={{ ...pharma, nom: pharma.nomPharmacie, adresse: pharma.addresse }}
+                pharmacie={pharma}
                 onClick={() => handleSelectPharmacie(pharma)}
               />
               {selected?.id === pharma.id && pharma.latitude && pharma.longitude && !routeInfo && (
