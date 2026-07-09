@@ -27,3 +27,7 @@ export function modifierCommandeAPI(id, data) {
 export function getAdminCommandesAPI(params = {}) {
   return axiosInstance.get('/admin/commandes', { params });
 }
+
+export function getAdminCommandeDetailAPI(id) {
+  return axiosInstance.get(`/admin/commandes/${id}`);
+}

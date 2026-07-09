@@ -36,8 +36,8 @@ export const STATUTS_PHARMACIE = {
 
 export const STATUTS_PAIEMENT = {
   en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  complete: { label: 'Complété', couleur: '#16A34A', fond: '#DCFCE7' },
-  echoue: { label: 'Échoué', couleur: '#DC2626', fond: '#FEE2E2' },
+  'complété': { label: 'Complété', couleur: '#16A34A', fond: '#DCFCE7' },
+  'échoué': { label: 'Échoué', couleur: '#DC2626', fond: '#FEE2E2' },
 };
 
 export const ROLES = {

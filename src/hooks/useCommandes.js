@@ -7,6 +7,7 @@ import {
   supprimerCommandeAPI,
   modifierCommandeAPI,
   getAdminCommandesAPI,
+  getAdminCommandeDetailAPI,
 } from '../api/commandes.api';
 
 export function useMesCommandes(params = {}) {
@@ -65,11 +66,22 @@ export function useModifierCommande() {
 }
 
 /**
- * @param {{ idPharmacie?: number|string, statut?: string, page?: number }} params
+ * @param {{ idPharmacie?: number|string, statut?: string, page?: number, date_debut?: string, date_fin?: string }} params
  */
 export function useAdminCommandes(params = {}) {
   return useQuery({
     queryKey: ['admin-commandes', params],
     queryFn: () => getAdminCommandesAPI(params).then((res) => res.data),
+  });
+}
+
+/**
+ * @param {string|number} id
+ */
+export function useAdminCommandeDetail(id) {
+  return useQuery({
+    queryKey: ['admin-commandes', id],
+    queryFn: () => getAdminCommandeDetailAPI(id).then((res) => res.data),
+    enabled: !!id,
   });
 }
