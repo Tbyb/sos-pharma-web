@@ -22,6 +22,8 @@ import CommandeDetailPage from '../pages/patient/CommandeDetailPage';
 import ModifierCommandePage from '../pages/patient/ModifierCommandePage';
 import ProfilPage from '../pages/patient/ProfilPage';
 
+import DashboardPage from '../pages/admin/DashboardPage';
+
 const PlaceholderPage = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <h2 className="text-xl text-gris">{title}</h2>
@@ -57,7 +59,7 @@ export default function AppRouter() {
       {/* Routes admin avec AdminLayout */}
       <Route element={<RoleRoute role="administrateur" />}>
         <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<PlaceholderPage title="Dashboard Admin" />} />
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
           <Route path="/admin/medicaments" element={<PlaceholderPage title="Référentiel médicaments" />} />
           <Route path="/admin/pharmacies" element={<PlaceholderPage title="Gestion pharmacies" />} />
           <Route path="/admin/pharmacies/:id" element={<PlaceholderPage title="Détail pharmacie" />} />
