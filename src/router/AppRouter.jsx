@@ -28,16 +28,11 @@ import PharmaciesPage from '../pages/admin/PharmaciesPage';
 import PharmacieDetailPage from '../pages/admin/PharmacieDetailPage';
 import CommandesPage from '../pages/admin/CommandesPage';
 import LivreursPage from '../pages/admin/LivreursPage';
+import TransactionsPage from '../pages/admin/TransactionsPage';
 
 import CataloguePage from '../pages/pharmacien/CataloguePage';
 import CommandesPharmaciePage from '../pages/pharmacien/CommandesPharmaciePage';
 import MaPharmaciePage from '../pages/pharmacien/MaPharmaciePage';
-
-const PlaceholderPage = ({ title }) => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <h2 className="text-xl text-gris">{title}</h2>
-  </div>
-);
 
 export default function AppRouter() {
   return (
@@ -74,7 +69,7 @@ export default function AppRouter() {
           <Route path="/admin/pharmacies/:id" element={<PharmacieDetailPage />} />
           <Route path="/admin/livreurs" element={<LivreursPage />} />
           <Route path="/admin/commandes" element={<CommandesPage />} />
-          <Route path="/admin/transactions" element={<PlaceholderPage title="Transactions" />} />
+          <Route path="/admin/transactions" element={<TransactionsPage />} />
         </Route>
       </Route>
 
