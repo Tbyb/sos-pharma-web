@@ -40,6 +40,14 @@ export const STATUTS_PAIEMENT = {
   'échoué': { label: 'Échoué', couleur: '#DC2626', fond: '#FEE2E2' },
 };
 
+// Doit rester synchronisé avec la validation de PaiementController::initier() (backend)
+export const MODES_PAIEMENT = {
+  wave: 'Wave',
+  orange_money: 'Orange Money',
+  free_money: 'Free Money',
+  carte: 'Carte bancaire',
+};
+
 export const ROLES = {
   ADMIN: 'administrateur',
   PHARMACIEN: 'pharmacien',

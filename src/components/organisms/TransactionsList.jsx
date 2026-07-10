@@ -1,14 +1,7 @@
 import Badge from '../atoms/Badge';
 import Skeleton from '../atoms/Skeleton';
-import { STATUTS_PAIEMENT } from '../../utils/constants';
+import { STATUTS_PAIEMENT, MODES_PAIEMENT } from '../../utils/constants';
 import { formatMontant, formatDate } from '../../utils/formatters';
-
-const MODES_LABELS = {
-  orange_money: 'Orange Money',
-  wave: 'Wave',
-  virement: 'Virement',
-  stripe: 'Carte (Stripe)',
-};
 
 /**
  * @param {{ transactions: Array, isLoading: boolean }} props
@@ -51,7 +44,7 @@ export default function TransactionsList({ transactions = [], isLoading }) {
                 <td className="py-2.5 px-4 text-gris">#{t.commande_id}</td>
                 <td className="py-2.5 px-4 text-gris">{t.patient?.nom || '—'}</td>
                 <td className="py-2.5 px-4 font-medium text-noir">{formatMontant(t.montant)}</td>
-                <td className="py-2.5 px-4 text-gris">{MODES_LABELS[t.mode_paiement] || t.mode_paiement}</td>
+                <td className="py-2.5 px-4 text-gris">{MODES_PAIEMENT[t.mode_paiement] || t.mode_paiement}</td>
                 <td className="py-2.5 px-4">
                   <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
                 </td>

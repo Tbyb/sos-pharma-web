@@ -18,6 +18,7 @@ export default function MedicamentsPage() {
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [medicamentEnEdition, setMedicamentEnEdition] = useState(null);
+  const [medicamentADesactiver, setMedicamentADesactiver] = useState(null);
   const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useAdminMedicaments({ search: search || undefined, statut: statut || undefined, page });
@@ -65,11 +66,12 @@ export default function MedicamentsPage() {
       });
   };
 
-  const handleDesactiver = (med) => {
-    if (!window.confirm(`Désactiver "${med.designation}" ? Il ne sera plus visible des patients.`)) return;
-    desactiver.mutate(med.id, {
+  const confirmerDesactivation = () => {
+    if (!medicamentADesactiver) return;
+    desactiver.mutate(medicamentADesactiver.id, {
       onSuccess: () => setMessage({ type: 'success', text: 'Médicament désactivé.' }),
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la désactivation.' }),
+      onSettled: () => setMedicamentADesactiver(null),
     });
   };
 
@@ -105,7 +107,7 @@ export default function MedicamentsPage() {
           medicaments={medicaments}
           isLoading={isLoading}
           onEdit={ouvrirEdition}
-          onDesactiver={handleDesactiver}
+          onDesactiver={setMedicamentADesactiver}
           onReactiver={handleReactiver}
         />
       )}
@@ -127,6 +129,22 @@ export default function MedicamentsPage() {
           onCancel={() => setModalOpen(false)}
           loading={creer.isPending || modifier.isPending}
         />
+      </Modal>
+
+      <Modal
+        open={!!medicamentADesactiver}
+        onClose={() => setMedicamentADesactiver(null)}
+        title="Désactiver le médicament"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setMedicamentADesactiver(null)}>Annuler</Button>
+            <Button variant="danger" loading={desactiver.isPending} onClick={confirmerDesactivation}>Désactiver</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gris">
+          {medicamentADesactiver && `Désactiver "${medicamentADesactiver.designation}" ? Il ne sera plus visible des patients.`}
+        </p>
       </Modal>
     </div>
   );

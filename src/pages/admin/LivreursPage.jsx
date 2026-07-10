@@ -13,6 +13,7 @@ import { formatDate } from '../../utils/formatters';
 
 export default function LivreursPage() {
   const [missionsLivreurId, setMissionsLivreurId] = useState(null);
+  const [livreurASuspendre, setLivreurASuspendre] = useState(null);
   const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useLivreurs();
@@ -23,14 +24,19 @@ export default function LivreursPage() {
   const livreurs = data?.data || [];
   const missions = missionsRes?.data || [];
 
-  const toggleStatut = (livreur) => {
-    const mutation = livreur.statut === 'suspendu' ? reactiver : suspendre;
-    mutation.mutate(livreur.id, {
-      onSuccess: () => setMessage({
-        type: 'success',
-        text: livreur.statut === 'suspendu' ? 'Livreur réactivé.' : 'Livreur suspendu.',
-      }),
+  const handleReactiver = (livreur) => {
+    reactiver.mutate(livreur.id, {
+      onSuccess: () => setMessage({ type: 'success', text: 'Livreur réactivé.' }),
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+    });
+  };
+
+  const confirmerSuspension = () => {
+    if (!livreurASuspendre) return;
+    suspendre.mutate(livreurASuspendre.id, {
+      onSuccess: () => setMessage({ type: 'success', text: 'Livreur suspendu.' }),
+      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onSettled: () => setLivreurASuspendre(null),
     });
   };
 
@@ -82,11 +88,11 @@ export default function LivreursPage() {
                         <Truck className="w-4 h-4" />
                       </Button>
                       {livreur.statut === 'suspendu' ? (
-                        <Button variant="ghost" size="sm" onClick={() => toggleStatut(livreur)} title="Réactiver">
+                        <Button variant="ghost" size="sm" onClick={() => handleReactiver(livreur)} title="Réactiver">
                           <RotateCcw className="w-4 h-4 text-succes" />
                         </Button>
                       ) : (
-                        <Button variant="ghost" size="sm" onClick={() => toggleStatut(livreur)} title="Suspendre">
+                        <Button variant="ghost" size="sm" onClick={() => setLivreurASuspendre(livreur)} title="Suspendre">
                           <Ban className="w-4 h-4 text-danger" />
                         </Button>
                       )}
@@ -127,6 +133,22 @@ export default function LivreursPage() {
         ) : (
           <p className="text-sm text-gris py-6 text-center">Aucune livraison pour ce livreur.</p>
         )}
+      </Modal>
+
+      <Modal
+        open={!!livreurASuspendre}
+        onClose={() => setLivreurASuspendre(null)}
+        title="Suspendre le livreur"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setLivreurASuspendre(null)}>Annuler</Button>
+            <Button variant="danger" loading={suspendre.isPending} onClick={confirmerSuspension}>Suspendre</Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gris">
+          {livreurASuspendre && `Suspendre "${livreurASuspendre.nom}" ? Il ne pourra plus accepter de nouvelles missions.`}
+        </p>
       </Modal>
     </div>
   );
