@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ShieldPlus, ShoppingCart, User, LogOut, Package } from 'lucide-react';
 import { usePanier } from '../../contexts/PanierContext';
+import Chatbot from '../organisms/Chatbot';
 
 export default function PublicLayout() {
   const { isConnecte, user, logout } = useAuth();
@@ -97,6 +98,8 @@ export default function PublicLayout() {
       <footer className="bg-white border-t py-6 text-center text-sm text-gris">
         © 2026 SOS-Pharma. Tous droits réservés.
       </footer>
+
+      <Chatbot />
     </div>
   );
 }
