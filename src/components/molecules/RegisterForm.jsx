@@ -4,14 +4,17 @@ import Input from '../atoms/Input';
 import Button from '../atoms/Button';
 import Alert from '../atoms/Alert';
 import { useAuth } from '../../contexts/AuthContext';
-import { Mail, Lock, User, Phone } from 'lucide-react';
+import { Mail, Lock, User, Phone, KeyRound } from 'lucide-react';
 
 export default function RegisterForm() {
+  const [etape, setEtape] = useState('inscription');
   const [form, setForm] = useState({ nom: '', prenom: '', email: '', telephone: '', password: '', password_confirmation: '' });
+  const [userId, setUserId] = useState(null);
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, verifyOtp } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (field) => (e) => {
@@ -19,15 +22,16 @@ export default function RegisterForm() {
     setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitInscription = async (e) => {
     e.preventDefault();
     setError('');
     setErrors({});
     setLoading(true);
 
     try {
-      await register(form);
-      navigate('/');
+      const res = await register(form);
+      setUserId(res.user_id);
+      setEtape('otp');
     } catch (err) {
       if (err.response?.data?.errors) {
         const apiErrors = {};
@@ -36,15 +40,58 @@ export default function RegisterForm() {
         });
         setErrors(apiErrors);
       } else {
-        setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
+        setError(err.response?.data?.message || "Erreur lors de l'inscription");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSubmitOtp = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await verifyOtp({ user_id: userId, otp });
+      navigate('/login', { state: { message: 'Compte confirmé avec succès. Vous pouvez maintenant vous connecter.' } });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Code invalide ou expiré.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (etape === 'otp') {
+    return (
+      <form onSubmit={handleSubmitOtp} className="space-y-4">
+        {error && <Alert variant="error">{error}</Alert>}
+
+        <p className="text-sm text-gris">
+          Un code à 6 chiffres a été envoyé à <span className="font-medium text-noir">{form.email}</span>.
+          Entrez-le ci-dessous pour confirmer votre compte.
+        </p>
+
+        <Input
+          label="Code de confirmation"
+          placeholder="123456"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          icon={<KeyRound className="w-4 h-4" />}
+          inputMode="numeric"
+          maxLength={6}
+          required
+        />
+
+        <Button type="submit" loading={loading} className="w-full" disabled={otp.length !== 6}>
+          Confirmer mon compte
+        </Button>
+      </form>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmitInscription} className="space-y-4">
       {error && <Alert variant="error">{error}</Alert>}
 
       <div className="grid grid-cols-2 gap-3">

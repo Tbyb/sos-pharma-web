@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 
 /**
- * @returns {{ position: {latitude: number, longitude: number}|null, statut: 'inactif'|'chargement'|'autorise'|'refuse', demanderPosition: () => void }}
+ * @returns {{ position: {latitude: number, longitude: number}|null, statut: 'inactif'|'chargement'|'autorise'|'refuse', demanderPosition: (options?: { onSuccess?: (coords: {latitude: number, longitude: number}) => void }) => void }}
  */
 export function useGeolocation() {
   const [position, setPosition] = useState(null);
   const [statut, setStatut] = useState('inactif');
 
-  const demanderPosition = useCallback(() => {
+  const demanderPosition = useCallback((options = {}) => {
     if (!navigator.geolocation) {
       setStatut('refuse');
       return;
@@ -15,8 +15,10 @@ export function useGeolocation() {
     setStatut('chargement');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setPosition({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        const coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        setPosition(coords);
         setStatut('autorise');
+        options.onSuccess?.(coords);
       },
       () => setStatut('refuse'),
       { enableHighAccuracy: true, timeout: 8000 }

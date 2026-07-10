@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { usePanier } from '../../contexts/PanierContext';
 import { useCreerCommande } from '../../hooks/useCommandes';
 import { useInitierPaiement } from '../../hooks/usePaiement';
+import { useGeolocation } from '../../hooks/useGeolocation';
 import Button from '../../components/atoms/Button';
 import Card from '../../components/atoms/Card';
 import Input from '../../components/atoms/Input';
 import Alert from '../../components/atoms/Alert';
 import { formatMontant } from '../../utils/formatters';
-import { MapPin, Truck, Store, Smartphone } from 'lucide-react';
+import { geocoderInverse } from '../../utils/geo';
+import { MapPin, Truck, Store, Smartphone, LocateFixed } from 'lucide-react';
 
 const MODES_PAIEMENT = [
   { id: 'wave', nom: 'Wave', couleur: '#1DC3F0' },
@@ -26,6 +28,23 @@ export default function CommandePage() {
   const [adresse, setAdresse] = useState('');
   const [erreur, setErreur] = useState('');
   const [loading, setLoading] = useState(false);
+  const [chargementAdresse, setChargementAdresse] = useState(false);
+
+  const { statut: statutGeoloc, demanderPosition } = useGeolocation();
+
+  const handleDemanderPosition = () => {
+    demanderPosition({
+      onSuccess: (coords) => {
+        setChargementAdresse(true);
+        geocoderInverse(coords.latitude, coords.longitude)
+          .then((adresseTrouvee) => {
+            if (adresseTrouvee) setAdresse(adresseTrouvee);
+          })
+          .catch(() => setErreur("Impossible de récupérer l'adresse depuis votre position. Saisissez-la manuellement."))
+          .finally(() => setChargementAdresse(false));
+      },
+    });
+  };
 
   if (!items.length) {
     navigate('/patient/panier');
@@ -128,7 +147,7 @@ export default function CommandePage() {
         </div>
 
         {mode === 'livraison' && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             <Input
               label="Adresse de livraison"
               value={adresse}
@@ -136,6 +155,18 @@ export default function CommandePage() {
               placeholder="Ex: Dakar, Médina, Rue 12..."
               icon={<MapPin className="w-4 h-4" />}
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDemanderPosition}
+              loading={statutGeoloc === 'chargement' || chargementAdresse}
+            >
+              <LocateFixed className="w-3.5 h-3.5" /> Utiliser ma position actuelle
+            </Button>
+            {statutGeoloc === 'refuse' && (
+              <p className="text-xs text-danger">Localisation refusée ou indisponible. Saisissez l'adresse manuellement.</p>
+            )}
           </div>
         )}
       </Card>

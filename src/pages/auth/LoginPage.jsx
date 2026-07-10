@@ -1,9 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Card from '../../components/atoms/Card';
+import Alert from '../../components/atoms/Alert';
 import LoginForm from '../../components/molecules/LoginForm';
 import { ShieldPlus } from 'lucide-react';
 
 export default function LoginPage() {
+  const location = useLocation();
+  const message = location.state?.message;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-vert-clair px-4">
       <div className="w-full max-w-md">
@@ -14,6 +18,8 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-noir">SOS-Pharma</h1>
           <p className="text-gris mt-1">Connectez-vous à votre compte</p>
         </div>
+
+        {message && <Alert variant="success" className="mb-4">{message}</Alert>}
 
         <Card>
           <LoginForm />

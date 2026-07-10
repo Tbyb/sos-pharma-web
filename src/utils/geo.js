@@ -18,3 +18,16 @@ export function formatDistanceKm(km) {
   if (km < 1) return `${Math.round(km * 1000)} m`;
   return `${km.toFixed(1)} km`;
 }
+
+/**
+ * Convertit des coordonnees GPS en adresse lisible (Nominatim/OpenStreetMap).
+ * @returns {Promise<string|null>}
+ */
+export async function geocoderInverse(latitude, longitude) {
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=0`
+  );
+  if (!res.ok) throw new Error('Géocodage impossible');
+  const data = await res.json();
+  return data.display_name || null;
+}

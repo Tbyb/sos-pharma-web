@@ -18,14 +18,16 @@ export function AuthProvider({ children }) {
     return role;
   };
 
+  // L'inscription ne connecte pas automatiquement : le backend renvoie
+  // { user_id, email, role } et exige une confirmation par code OTP
+  // (envoyé par email) avant que la connexion ne soit autorisée.
   const register = async (data) => {
-    const res = await axiosInstance.post('/auth/register', data);
-    const { token, user: userData } = res.data.data;
-    const role = userData.roles?.[0]?.name || 'patient';
-    localStorage.setItem('sos_pharma_token', token);
-    localStorage.setItem('sos_pharma_user', JSON.stringify({ ...userData, role }));
-    setUser({ ...userData, role });
-    return role;
+    const res = await axiosInstance.post('/auth/register', { ...data, role: 'patient' });
+    return res.data.data;
+  };
+
+  const verifyOtp = async ({ user_id, otp }) => {
+    await axiosInstance.post('/auth/verify-otp', { user_id, otp });
   };
 
   const logout = async () => {
@@ -41,7 +43,7 @@ export function AuthProvider({ children }) {
   const isConnecte = () => !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAdmin, isPharmacien, isPatient, isConnecte }}>
+    <AuthContext.Provider value={{ user, login, register, verifyOtp, logout, isAdmin, isPharmacien, isPatient, isConnecte }}>
       {children}
     </AuthContext.Provider>
   );
