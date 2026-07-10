@@ -40,8 +40,8 @@ export function accepterCommandeAPI(id) {
   return axiosInstance.put(`/commandes/${id}/accepter`);
 }
 
-export function refuserCommandeAPI(id) {
-  return axiosInstance.put(`/commandes/${id}/refuser`);
+export function refuserCommandeAPI(id, motif) {
+  return axiosInstance.put(`/commandes/${id}/refuser`, { motif });
 }
 
 export function marquerPreteAPI(id) {

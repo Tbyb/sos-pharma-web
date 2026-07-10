@@ -93,7 +93,7 @@ export default function PharmacienLayout() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="lg:ml-64">
-        <Header title={title} onMenuClick={() => setSidebarOpen(true)} />
+        <Header title={title} onMenuClick={() => setSidebarOpen(true)} showNotifications />
         <main className="p-4 lg:p-6">
           <Outlet />
         </main>

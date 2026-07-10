@@ -75,6 +75,12 @@ export default function CommandeDetailPage() {
 
       {erreur && <Alert variant="error" className="mb-4">{erreur}</Alert>}
 
+      {statutKey === 'refusee' && commande.motif_refus && (
+        <Alert variant="error" className="mb-4">
+          <span className="font-medium">Motif du refus : </span>{commande.motif_refus}
+        </Alert>
+      )}
+
       <Card className="mb-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
