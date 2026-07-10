@@ -12,6 +12,7 @@ export const PHARMACIE_ACTIONS = {
     confirmLabel: 'Refuser',
     variant: 'danger',
     succes: 'Pharmacie refusée.',
+    motifRequis: true,
   },
   suspendre: {
     titre: 'Suspendre la pharmacie',

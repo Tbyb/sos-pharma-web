@@ -20,8 +20,8 @@ export function accepterPharmacieAPI(id) {
   return axiosInstance.put(`/pharmacies/${id}/accepter`);
 }
 
-export function refuserPharmacieAPI(id) {
-  return axiosInstance.put(`/pharmacies/${id}/refuser`);
+export function refuserPharmacieAPI(id, motif) {
+  return axiosInstance.put(`/pharmacies/${id}/refuser`, { motif });
 }
 
 export function suspendrePharmacieAPI(id) {
@@ -38,4 +38,10 @@ export function getMaPharmacieAPI() {
 
 export function modifierMaPharmacieAPI(data) {
   return axiosInstance.put('/ma-pharmacie/info', data);
+}
+
+export function inscrirePharmacieAPI(formData) {
+  return axiosInstance.post('/ma-pharmacie/inscrire', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 }

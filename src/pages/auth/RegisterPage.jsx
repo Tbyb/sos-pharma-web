@@ -24,6 +24,12 @@ export default function RegisterPage() {
               Se connecter
             </Link>
           </p>
+          <p className="text-center text-sm text-gris mt-2">
+            Vous êtes pharmacien ?{' '}
+            <Link to="/register-pharmacien" className="text-bleu font-medium hover:underline">
+              Créer un compte pharmacie
+            </Link>
+          </p>
         </Card>
       </div>
     </div>

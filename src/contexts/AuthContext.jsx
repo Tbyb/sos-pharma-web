@@ -21,8 +21,8 @@ export function AuthProvider({ children }) {
   // L'inscription ne connecte pas automatiquement : le backend renvoie
   // { user_id, email, role } et exige une confirmation par code OTP
   // (envoyé par email) avant que la connexion ne soit autorisée.
-  const register = async (data) => {
-    const res = await axiosInstance.post('/auth/register', { ...data, role: 'patient' });
+  const register = async (data, role = 'patient') => {
+    const res = await axiosInstance.post('/auth/register', { ...data, role });
     return res.data.data;
   };
 

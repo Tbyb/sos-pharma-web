@@ -6,7 +6,7 @@ import Alert from '../atoms/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock, User, Phone, KeyRound } from 'lucide-react';
 
-export default function RegisterForm() {
+export default function RegisterForm({ role = 'patient' }) {
   const [etape, setEtape] = useState('inscription');
   const [form, setForm] = useState({ nom: '', prenom: '', email: '', telephone: '', password: '', password_confirmation: '' });
   const [userId, setUserId] = useState(null);
@@ -29,7 +29,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      const res = await register(form);
+      const res = await register(form, role);
       setUserId(res.user_id);
       setEtape('otp');
     } catch (err) {
@@ -54,7 +54,10 @@ export default function RegisterForm() {
 
     try {
       await verifyOtp({ user_id: userId, otp });
-      navigate('/login', { state: { message: 'Compte confirmé avec succès. Vous pouvez maintenant vous connecter.' } });
+      const message = role === 'pharmacien'
+        ? 'Compte confirmé avec succès. Connectez-vous pour renseigner les informations de votre pharmacie.'
+        : 'Compte confirmé avec succès. Vous pouvez maintenant vous connecter.';
+      navigate('/login', { state: { message } });
     } catch (err) {
       setError(err.response?.data?.message || 'Code invalide ou expiré.');
     } finally {

@@ -8,6 +8,7 @@ import PharmacienLayout from '../components/templates/PharmacienLayout';
 
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import RegisterPharmacienPage from '../pages/auth/RegisterPharmacienPage';
 
 import HomePage from '../pages/public/HomePage';
 import MedicamentDetailPage from '../pages/public/MedicamentDetailPage';
@@ -40,6 +41,7 @@ export default function AppRouter() {
       {/* Auth (sans layout) */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/register-pharmacien" element={<RegisterPharmacienPage />} />
 
       {/* Pages publiques avec PublicLayout */}
       <Route element={<PublicLayout />}>
