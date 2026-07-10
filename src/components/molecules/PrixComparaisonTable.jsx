@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, ShoppingCart, Navigation } from 'lucide-react';
 import { formatMontant } from '../../utils/formatters';
+import { formatDistanceKm } from '../../utils/geo';
 import Button from '../atoms/Button';
 import Badge from '../atoms/Badge';
 
@@ -31,6 +32,7 @@ export default function PrixComparaisonTable({ comparaisons = [], onAjouterPanie
                 <p className="text-xs text-gris flex items-center gap-1 mt-0.5">
                   <MapPin className="w-3 h-3" />
                   {item.pharmacie_adresse}
+                  {item.distanceKm != null && <span className="text-bleu">· {formatDistanceKm(item.distanceKm)}</span>}
                 </p>
                 {item.pharmacie_id && (
                   <Link
