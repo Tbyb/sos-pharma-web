@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, Phone, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, BadgeCheck, FileText } from 'lucide-react';
 import {
   usePharmacieDetail, usePharmacieCatalogue,
   useAccepterPharmacie, useRefuserPharmacie, useSuspendrePharmacie, useReactiverPharmacie,
@@ -12,13 +12,16 @@ import Button from '../../components/atoms/Button';
 import Skeleton from '../../components/atoms/Skeleton';
 import Alert from '../../components/atoms/Alert';
 import Modal from '../../components/atoms/Modal';
+import Textarea from '../../components/atoms/Textarea';
 import { STATUTS_PHARMACIE, STATUTS_COMMANDE } from '../../utils/constants';
 import { formatMontant, formatDate } from '../../utils/formatters';
 import { PHARMACIE_ACTIONS } from '../../utils/pharmacieActions';
+import { getStorageUrl } from '../../utils/storage';
 
 export default function PharmacieDetailPage() {
   const { id } = useParams();
   const [action, setAction] = useState(null);
+  const [motif, setMotif] = useState('');
   const [message, setMessage] = useState(null);
 
   const { data, isLoading } = usePharmacieDetail(id);
@@ -52,13 +55,20 @@ export default function PharmacieDetailPage() {
   const statut = STATUTS_PHARMACIE[pharmacie.statut] || { label: pharmacie.statut, couleur: '#6B7280', fond: '#F3F4F6' };
   const config = action ? PHARMACIE_ACTIONS[action] : null;
   const enCours = action ? mutations[action].isPending : false;
+  const motifInvalide = action === 'refuser' && !motif.trim();
+
+  const fermerConfirmation = () => {
+    setAction(null);
+    setMotif('');
+  };
 
   const confirmerAction = () => {
     if (!action) return;
-    mutations[action].mutate(pharmacie.id, {
+    const variables = action === 'refuser' ? { id: pharmacie.id, motif } : pharmacie.id;
+    mutations[action].mutate(variables, {
       onSuccess: () => setMessage({ type: 'success', text: PHARMACIE_ACTIONS[action].succes }),
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
-      onSettled: () => setAction(null),
+      onSettled: () => fermerConfirmation(),
     });
   };
 
@@ -85,6 +95,16 @@ export default function PharmacieDetailPage() {
             <div className="flex items-center gap-1 mt-1 text-sm text-gris">
               <BadgeCheck className="w-4 h-4" /> Licence {pharmacie.numLicence}
             </div>
+            {pharmacie.documentUpload && (
+              <a
+                href={getStorageUrl(pharmacie.documentUpload)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 mt-1 text-sm text-bleu hover:underline w-fit"
+              >
+                <FileText className="w-4 h-4" /> Voir le document soumis
+              </a>
+            )}
           </div>
           <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
         </div>
@@ -103,6 +123,12 @@ export default function PharmacieDetailPage() {
             <Button size="sm" variant="secondary" onClick={() => setAction('reactiver')}>Réactiver</Button>
           )}
         </div>
+
+        {pharmacie.statut === 'refusee' && pharmacie.motif_refus && (
+          <p className="mt-4 pt-4 border-t text-sm text-gris">
+            <span className="font-medium text-noir">Motif du refus : </span>{pharmacie.motif_refus}
+          </p>
+        )}
       </Card>
 
       <Card className="mb-4">
@@ -170,16 +196,26 @@ export default function PharmacieDetailPage() {
 
       <Modal
         open={!!action}
-        onClose={() => setAction(null)}
+        onClose={fermerConfirmation}
         title={config?.titre}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setAction(null)}>Annuler</Button>
-            <Button variant={config?.variant} loading={enCours} onClick={confirmerAction}>{config?.confirmLabel}</Button>
+            <Button variant="ghost" onClick={fermerConfirmation}>Annuler</Button>
+            <Button variant={config?.variant} loading={enCours} disabled={motifInvalide} onClick={confirmerAction}>{config?.confirmLabel}</Button>
           </>
         }
       >
         <p className="text-sm text-gris">{action && config.description(pharmacie)}</p>
+        {config?.motifRequis && (
+          <Textarea
+            className="mt-3"
+            label="Motif du refus"
+            placeholder="Ex: documents illisibles, licence invalide..."
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+            rows={3}
+          />
+        )}
       </Modal>
     </div>
   );

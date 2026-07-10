@@ -8,6 +8,7 @@ import Modal from '../../components/atoms/Modal';
 import Button from '../../components/atoms/Button';
 import Alert from '../../components/atoms/Alert';
 import Pagination from '../../components/atoms/Pagination';
+import Textarea from '../../components/atoms/Textarea';
 import { PHARMACIE_ACTIONS } from '../../utils/pharmacieActions';
 
 const ONGLETS = [
@@ -20,6 +21,7 @@ export default function PharmaciesPage() {
   const [onglet, setOnglet] = useState('en_attente');
   const [page, setPage] = useState(1);
   const [confirmation, setConfirmation] = useState(null);
+  const [motif, setMotif] = useState('');
   const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useAdminPharmacies({ statut: onglet, page });
@@ -39,20 +41,30 @@ export default function PharmaciesPage() {
     setPage(1);
   };
 
-  const demanderConfirmation = (action) => (pharmacie) => setConfirmation({ action, pharmacie });
+  const demanderConfirmation = (action) => (pharmacie) => {
+    setMotif('');
+    setConfirmation({ action, pharmacie });
+  };
+
+  const fermerConfirmation = () => {
+    setConfirmation(null);
+    setMotif('');
+  };
 
   const confirmerAction = () => {
     if (!confirmation) return;
     const { action, pharmacie } = confirmation;
-    mutations[action].mutate(pharmacie.id, {
+    const variables = action === 'refuser' ? { id: pharmacie.id, motif } : pharmacie.id;
+    mutations[action].mutate(variables, {
       onSuccess: () => setMessage({ type: 'success', text: PHARMACIE_ACTIONS[action].succes }),
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || "Une erreur est survenue." }),
-      onSettled: () => setConfirmation(null),
+      onSettled: () => fermerConfirmation(),
     });
   };
 
   const config = confirmation ? PHARMACIE_ACTIONS[confirmation.action] : null;
   const enCours = confirmation ? mutations[confirmation.action].isPending : false;
+  const motifInvalide = confirmation?.action === 'refuser' && !motif.trim();
 
   return (
     <div>
@@ -98,16 +110,26 @@ export default function PharmaciesPage() {
 
       <Modal
         open={!!confirmation}
-        onClose={() => setConfirmation(null)}
+        onClose={fermerConfirmation}
         title={config?.titre}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmation(null)}>Annuler</Button>
-            <Button variant={config?.variant} loading={enCours} onClick={confirmerAction}>{config?.confirmLabel}</Button>
+            <Button variant="ghost" onClick={fermerConfirmation}>Annuler</Button>
+            <Button variant={config?.variant} loading={enCours} disabled={motifInvalide} onClick={confirmerAction}>{config?.confirmLabel}</Button>
           </>
         }
       >
         <p className="text-sm text-gris">{confirmation && config.description(confirmation.pharmacie)}</p>
+        {config?.motifRequis && (
+          <Textarea
+            className="mt-3"
+            label="Motif du refus"
+            placeholder="Ex: documents illisibles, licence invalide..."
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+            rows={3}
+          />
+        )}
       </Modal>
     </div>
   );

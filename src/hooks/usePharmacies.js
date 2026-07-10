@@ -3,7 +3,7 @@ import {
   getPharmaciesAPI, getPharmacieAPI, getPharmaciesCatalogueAPI,
   getAdminPharmaciesAPI, accepterPharmacieAPI, refuserPharmacieAPI,
   suspendrePharmacieAPI, reactiverPharmacieAPI,
-  getMaPharmacieAPI, modifierMaPharmacieAPI,
+  getMaPharmacieAPI, modifierMaPharmacieAPI, inscrirePharmacieAPI,
 } from '../api/pharmacies.api';
 
 /**
@@ -64,7 +64,14 @@ export function useAccepterPharmacie() {
 }
 
 export function useRefuserPharmacie() {
-  return useChangerStatutPharmacie((id) => refuserPharmacieAPI(id).then((res) => res.data));
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, motif }) => refuserPharmacieAPI(id, motif).then((res) => res.data),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-pharmacies'] });
+      queryClient.invalidateQueries({ queryKey: ['pharmacies', id] });
+    },
+  });
 }
 
 export function useSuspendrePharmacie() {
@@ -86,6 +93,14 @@ export function useModifierMaPharmacie() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data) => modifierMaPharmacieAPI(data).then((res) => res.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ma-pharmacie'] }),
+  });
+}
+
+export function useInscrirePharmacie() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData) => inscrirePharmacieAPI(formData).then((res) => res.data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ma-pharmacie'] }),
   });
 }
