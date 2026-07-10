@@ -70,7 +70,7 @@ export default function HomePage() {
           </p>
         )}
 
-        {medicaments.length > 0 && (
+        {medicamentsTries.length > 0 && (
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <select
               value={tri}
