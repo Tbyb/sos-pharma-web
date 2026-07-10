@@ -11,3 +11,7 @@ export function confirmerPaiementAPI(reference) {
 export function verifierPaiementAPI(reference) {
   return axiosInstance.get(`/paiements/${reference}/statut`);
 }
+
+export function getAdminPaiementsAPI(params = {}) {
+  return axiosInstance.get('/admin/paiements', { params });
+}
