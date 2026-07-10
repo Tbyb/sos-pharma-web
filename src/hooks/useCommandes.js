@@ -113,7 +113,7 @@ export function useAccepterCommande() {
 }
 
 export function useRefuserCommande() {
-  return useChangerStatutCommande((id) => refuserCommandeAPI(id).then((res) => res.data));
+  return useChangerStatutCommande(({ id, motif }) => refuserCommandeAPI(id, motif).then((res) => res.data));
 }
 
 export function useMarquerPrete() {

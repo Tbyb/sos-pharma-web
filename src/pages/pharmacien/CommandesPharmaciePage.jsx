@@ -7,6 +7,8 @@ import CommandeDetails from '../../components/molecules/CommandeDetails';
 import Skeleton from '../../components/atoms/Skeleton';
 import Alert from '../../components/atoms/Alert';
 import Modal from '../../components/atoms/Modal';
+import Textarea from '../../components/atoms/Textarea';
+import Button from '../../components/atoms/Button';
 import Pagination from '../../components/atoms/Pagination';
 
 const ONGLETS = [
@@ -21,6 +23,8 @@ export default function CommandesPharmaciePage() {
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState(null);
   const [commandeDetail, setCommandeDetail] = useState(null);
+  const [refusCommande, setRefusCommande] = useState(null);
+  const [motif, setMotif] = useState('');
 
   const { data, isLoading, isError, error } = useCommandesPharmacie({ statut: onglet || undefined, page });
   const accepter = useAccepterCommande();
@@ -45,10 +49,21 @@ export default function CommandesPharmaciePage() {
   };
 
   const handleRefuser = (commande) => {
-    if (!window.confirm(`Refuser la commande #${commande.id} ?`)) return;
-    refuser.mutate(commande.id, {
+    setMotif('');
+    setRefusCommande(commande);
+  };
+
+  const fermerRefus = () => {
+    setRefusCommande(null);
+    setMotif('');
+  };
+
+  const confirmerRefus = () => {
+    if (!refusCommande || !motif.trim()) return;
+    refuser.mutate({ id: refusCommande.id, motif }, {
       onSuccess: () => setMessage({ type: 'success', text: 'Commande refusée.' }),
       onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du refus.' }),
+      onSettled: () => fermerRefus(),
     });
   };
 
@@ -118,6 +133,32 @@ export default function CommandesPharmaciePage() {
 
       <Modal open={!!commandeDetail} onClose={() => setCommandeDetail(null)} title="Détail de la commande">
         {commandeDetail && <CommandeDetails commande={commandeDetail} />}
+      </Modal>
+
+      <Modal
+        open={!!refusCommande}
+        onClose={fermerRefus}
+        title="Refuser la commande"
+        footer={
+          <>
+            <Button variant="ghost" onClick={fermerRefus}>Annuler</Button>
+            <Button variant="danger" loading={refuser.isPending} disabled={!motif.trim()} onClick={confirmerRefus}>
+              Refuser
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gris">
+          {refusCommande && `Refuser la commande #${refusCommande.id} ? Le patient sera notifié du motif.`}
+        </p>
+        <Textarea
+          className="mt-3"
+          label="Motif du refus"
+          placeholder="Ex: médicament indisponible, rupture de stock..."
+          value={motif}
+          onChange={(e) => setMotif(e.target.value)}
+          rows={3}
+        />
       </Modal>
     </div>
   );

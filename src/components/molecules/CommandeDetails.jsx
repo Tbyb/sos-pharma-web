@@ -20,6 +20,13 @@ export default function CommandeDetails({ commande }) {
         <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
       </div>
 
+      {commande.statut_commande === 'refusee' && commande.motif_refus && (
+        <div className="text-sm bg-red-50 border border-red-100 rounded-lg p-3">
+          <span className="font-medium text-noir">Motif du refus : </span>
+          <span className="text-gris">{commande.motif_refus}</span>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <p className="text-xs text-gris">Patient</p>

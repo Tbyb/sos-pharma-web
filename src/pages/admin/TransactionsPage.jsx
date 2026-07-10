@@ -63,7 +63,7 @@ export default function TransactionsPage() {
           onChange={handleFiltreChange}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
         >
-          <option value="">Tous les statuts</option>
+          <option value="">Historique (hors en attente)</option>
           {Object.entries(STATUTS_PAIEMENT).map(([value, { label }]) => (
             <option key={value} value={value}>{label}</option>
           ))}
