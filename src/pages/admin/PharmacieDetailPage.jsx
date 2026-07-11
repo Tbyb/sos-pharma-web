@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { ArrowLeft, MapPin, Phone, BadgeCheck, FileText } from 'lucide-react';
 import {
   usePharmacieDetail, usePharmacieCatalogue,
@@ -11,8 +12,7 @@ import Badge from '../../components/atoms/Badge';
 import Button from '../../components/atoms/Button';
 import Skeleton from '../../components/atoms/Skeleton';
 import Alert from '../../components/atoms/Alert';
-import Modal from '../../components/atoms/Modal';
-import Textarea from '../../components/atoms/Textarea';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import { STATUTS_PHARMACIE, STATUTS_COMMANDE } from '../../utils/constants';
 import { formatMontant, formatDate } from '../../utils/formatters';
 import { PHARMACIE_ACTIONS } from '../../utils/pharmacieActions';
@@ -22,7 +22,6 @@ export default function PharmacieDetailPage() {
   const { id } = useParams();
   const [action, setAction] = useState(null);
   const [motif, setMotif] = useState('');
-  const [message, setMessage] = useState(null);
 
   const { data, isLoading } = usePharmacieDetail(id);
   const { data: catalogueRes, isLoading: loadingCatalogue } = usePharmacieCatalogue(id);
@@ -55,7 +54,6 @@ export default function PharmacieDetailPage() {
   const statut = STATUTS_PHARMACIE[pharmacie.statut] || { label: pharmacie.statut, couleur: '#6B7280', fond: '#F3F4F6' };
   const config = action ? PHARMACIE_ACTIONS[action] : null;
   const enCours = action ? mutations[action].isPending : false;
-  const motifInvalide = action === 'refuser' && !motif.trim();
 
   const fermerConfirmation = () => {
     setAction(null);
@@ -66,8 +64,8 @@ export default function PharmacieDetailPage() {
     if (!action) return;
     const variables = action === 'refuser' ? { id: pharmacie.id, motif } : pharmacie.id;
     mutations[action].mutate(variables, {
-      onSuccess: () => setMessage({ type: 'success', text: PHARMACIE_ACTIONS[action].succes }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onSuccess: () => toast.success(PHARMACIE_ACTIONS[action].succes),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
       onSettled: () => fermerConfirmation(),
     });
   };
@@ -77,8 +75,6 @@ export default function PharmacieDetailPage() {
       <Link to="/admin/pharmacies" className="inline-flex items-center gap-1 text-sm text-gris hover:text-noir mb-4">
         <ArrowLeft className="w-4 h-4" /> Retour à la liste
       </Link>
-
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
 
       <Card className="mb-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -194,29 +190,21 @@ export default function PharmacieDetailPage() {
         )}
       </Card>
 
-      <Modal
+      <ConfirmDialog
         open={!!action}
         onClose={fermerConfirmation}
+        onConfirm={confirmerAction}
         title={config?.titre}
-        footer={
-          <>
-            <Button variant="ghost" onClick={fermerConfirmation}>Annuler</Button>
-            <Button variant={config?.variant} loading={enCours} disabled={motifInvalide} onClick={confirmerAction}>{config?.confirmLabel}</Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gris">{action && config.description(pharmacie)}</p>
-        {config?.motifRequis && (
-          <Textarea
-            className="mt-3"
-            label="Motif du refus"
-            placeholder="Ex: documents illisibles, licence invalide..."
-            value={motif}
-            onChange={(e) => setMotif(e.target.value)}
-            rows={3}
-          />
-        )}
-      </Modal>
+        description={action && config.description(pharmacie)}
+        confirmLabel={config?.confirmLabel}
+        variant={config?.variant}
+        loading={enCours}
+        motif={config?.motifRequis ? motif : undefined}
+        onMotifChange={config?.motifRequis ? setMotif : undefined}
+        motifLabel="Motif du refus"
+        motifPlaceholder="Ex: documents illisibles, licence invalide..."
+        motifRequired={config?.motifRequis}
+      />
     </div>
   );
 }

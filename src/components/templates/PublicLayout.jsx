@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { ShieldPlus, ShoppingCart, User, LogOut, Package } from 'lucide-react';
+import { ShieldPlus, ShoppingCart, User, LogOut, Package, MapPin } from 'lucide-react';
 import { usePanier } from '../../contexts/PanierContext';
 import Chatbot from '../organisms/Chatbot';
 import NotificationBell from '../molecules/NotificationBell';
@@ -42,6 +42,10 @@ export default function PublicLayout() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Link to="/pharmacies" className="md:hidden p-2 hover:bg-gris-clair rounded-lg" aria-label="Pharmacies">
+              <MapPin className="w-5 h-5 text-noir" />
+            </Link>
+
             {isConnecte() && <NotificationBell />}
 
             {isConnecte() && (
@@ -68,7 +72,7 @@ export default function PublicLayout() {
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50 animate-[scale-in_0.12s_ease-out]">
                     <Link to="/patient/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-noir hover:bg-gris-clair">
                       <User className="w-4 h-4" />
                       Mon profil

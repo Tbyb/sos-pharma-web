@@ -1,14 +1,13 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   useAdminPharmacies, useAccepterPharmacie, useRefuserPharmacie,
   useSuspendrePharmacie, useReactiverPharmacie,
 } from '../../hooks/usePharmacies';
 import PharmaciesList from '../../components/organisms/PharmaciesList';
-import Modal from '../../components/atoms/Modal';
-import Button from '../../components/atoms/Button';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import Pagination from '../../components/atoms/Pagination';
-import Textarea from '../../components/atoms/Textarea';
 import { PHARMACIE_ACTIONS } from '../../utils/pharmacieActions';
 
 const ONGLETS = [
@@ -22,7 +21,6 @@ export default function PharmaciesPage() {
   const [page, setPage] = useState(1);
   const [confirmation, setConfirmation] = useState(null);
   const [motif, setMotif] = useState('');
-  const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useAdminPharmacies({ statut: onglet, page });
   const certifier = useAccepterPharmacie();
@@ -56,21 +54,19 @@ export default function PharmaciesPage() {
     const { action, pharmacie } = confirmation;
     const variables = action === 'refuser' ? { id: pharmacie.id, motif } : pharmacie.id;
     mutations[action].mutate(variables, {
-      onSuccess: () => setMessage({ type: 'success', text: PHARMACIE_ACTIONS[action].succes }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || "Une erreur est survenue." }),
+      onSuccess: () => toast.success(PHARMACIE_ACTIONS[action].succes),
+      onError: (err) => toast.error(err.response?.data?.message || "Une erreur est survenue."),
       onSettled: () => fermerConfirmation(),
     });
   };
 
   const config = confirmation ? PHARMACIE_ACTIONS[confirmation.action] : null;
   const enCours = confirmation ? mutations[confirmation.action].isPending : false;
-  const motifInvalide = confirmation?.action === 'refuser' && !motif.trim();
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-noir mb-6">Gestion des pharmacies</h1>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les pharmacies.'}
@@ -108,29 +104,21 @@ export default function PharmaciesPage() {
         </div>
       )}
 
-      <Modal
+      <ConfirmDialog
         open={!!confirmation}
         onClose={fermerConfirmation}
+        onConfirm={confirmerAction}
         title={config?.titre}
-        footer={
-          <>
-            <Button variant="ghost" onClick={fermerConfirmation}>Annuler</Button>
-            <Button variant={config?.variant} loading={enCours} disabled={motifInvalide} onClick={confirmerAction}>{config?.confirmLabel}</Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gris">{confirmation && config.description(confirmation.pharmacie)}</p>
-        {config?.motifRequis && (
-          <Textarea
-            className="mt-3"
-            label="Motif du refus"
-            placeholder="Ex: documents illisibles, licence invalide..."
-            value={motif}
-            onChange={(e) => setMotif(e.target.value)}
-            rows={3}
-          />
-        )}
-      </Modal>
+        description={confirmation && config.description(confirmation.pharmacie)}
+        confirmLabel={config?.confirmLabel}
+        variant={config?.variant}
+        loading={enCours}
+        motif={config?.motifRequis ? motif : undefined}
+        onMotifChange={config?.motifRequis ? setMotif : undefined}
+        motifLabel="Motif du refus"
+        motifPlaceholder="Ex: documents illisibles, licence invalide..."
+        motifRequired={config?.motifRequis}
+      />
     </div>
   );
 }

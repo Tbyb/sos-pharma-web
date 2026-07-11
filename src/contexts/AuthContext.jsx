@@ -30,6 +30,16 @@ export function AuthProvider({ children }) {
     await axiosInstance.post('/auth/verify-otp', { user_id, otp });
   };
 
+  // Met a jour l'utilisateur en session localement (ex: apres modification du profil),
+  // sans repasser par /auth/login.
+  const updateUser = (partialUser) => {
+    setUser((prev) => {
+      const next = { ...prev, ...partialUser };
+      localStorage.setItem('sos_pharma_user', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const logout = async () => {
     await axiosInstance.post('/auth/logout').catch(() => {});
     localStorage.removeItem('sos_pharma_token');
@@ -43,7 +53,7 @@ export function AuthProvider({ children }) {
   const isConnecte = () => !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, verifyOtp, logout, isAdmin, isPharmacien, isPatient, isConnecte }}>
+    <AuthContext.Provider value={{ user, login, register, verifyOtp, updateUser, logout, isAdmin, isPharmacien, isPatient, isConnecte }}>
       {children}
     </AuthContext.Provider>
   );

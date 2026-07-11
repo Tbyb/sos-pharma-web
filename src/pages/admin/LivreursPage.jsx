@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Truck, Ban, RotateCcw } from 'lucide-react';
 import {
   useLivreurs, useLivreurMissions, useSuspendreLivreur, useReactiverLivreur,
@@ -8,13 +9,13 @@ import Badge from '../../components/atoms/Badge';
 import Button from '../../components/atoms/Button';
 import Skeleton from '../../components/atoms/Skeleton';
 import Modal from '../../components/atoms/Modal';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import { formatDate } from '../../utils/formatters';
 
 export default function LivreursPage() {
   const [missionsLivreurId, setMissionsLivreurId] = useState(null);
   const [livreurASuspendre, setLivreurASuspendre] = useState(null);
-  const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useLivreurs();
   const { data: missionsRes, isLoading: loadingMissions } = useLivreurMissions(missionsLivreurId);
@@ -26,16 +27,16 @@ export default function LivreursPage() {
 
   const handleReactiver = (livreur) => {
     reactiver.mutate(livreur.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Livreur réactivé.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onSuccess: () => toast.success('Livreur réactivé.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
     });
   };
 
   const confirmerSuspension = () => {
     if (!livreurASuspendre) return;
     suspendre.mutate(livreurASuspendre.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Livreur suspendu.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onSuccess: () => toast.success('Livreur suspendu.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
       onSettled: () => setLivreurASuspendre(null),
     });
   };
@@ -44,7 +45,6 @@ export default function LivreursPage() {
     <div>
       <h1 className="text-2xl font-bold text-noir mb-6">Gestion des livreurs</h1>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les livreurs.'}
@@ -135,21 +135,15 @@ export default function LivreursPage() {
         )}
       </Modal>
 
-      <Modal
+      <ConfirmDialog
         open={!!livreurASuspendre}
         onClose={() => setLivreurASuspendre(null)}
+        onConfirm={confirmerSuspension}
         title="Suspendre le livreur"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setLivreurASuspendre(null)}>Annuler</Button>
-            <Button variant="danger" loading={suspendre.isPending} onClick={confirmerSuspension}>Suspendre</Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gris">
-          {livreurASuspendre && `Suspendre "${livreurASuspendre.nom}" ? Il ne pourra plus accepter de nouvelles missions.`}
-        </p>
-      </Modal>
+        description={livreurASuspendre && `Suspendre "${livreurASuspendre.nom}" ? Il ne pourra plus accepter de nouvelles missions.`}
+        confirmLabel="Suspendre"
+        loading={suspendre.isPending}
+      />
     </div>
   );
 }

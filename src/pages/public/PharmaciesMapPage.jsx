@@ -53,7 +53,7 @@ function UserMarker({ position }) {
 function RouteInfoOverlay({ routeInfo, selectedMode, onSelectMode, onStart, onClose, tracking, onStop }) {
   if (!routeInfo) return null;
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-lg shadow-lg p-4 min-w-[300px]">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-lg shadow-lg p-4 w-[calc(100vw-2rem)] max-w-[300px]">
       <div className="flex items-center justify-between mb-3">
         <span className="font-semibold text-noir text-sm">Itinéraire</span>
         <button onClick={onClose} className="p-1 hover:bg-gris-clair rounded cursor-pointer">
@@ -127,6 +127,25 @@ export default function PharmaciesMapPage() {
 
   const pharmacies = data?.data || data || [];
 
+  const stopTracking = () => {
+    if (watchId) {
+      navigator.geolocation?.clearWatch(watchId);
+      setWatchId(null);
+    }
+    setTracking(false);
+  };
+
+  const handleSelectPharmacie = (pharma) => {
+    if (!pharma.latitude || !pharma.longitude) return;
+    const pos = [parseFloat(pharma.latitude), parseFloat(pharma.longitude)];
+    setSelected(pharma);
+    setFlyTo(pos);
+    setFlyZoom(16);
+    setRoute(null);
+    setRouteInfo(null);
+    stopTracking();
+  };
+
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
       (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
@@ -149,17 +168,6 @@ export default function PharmaciesMapPage() {
       if (watchId) navigator.geolocation?.clearWatch(watchId);
     };
   }, [watchId]);
-
-  const handleSelectPharmacie = (pharma) => {
-    if (!pharma.latitude || !pharma.longitude) return;
-    const pos = [parseFloat(pharma.latitude), parseFloat(pharma.longitude)];
-    setSelected(pharma);
-    setFlyTo(pos);
-    setFlyZoom(16);
-    setRoute(null);
-    setRouteInfo(null);
-    stopTracking();
-  };
 
   const fetchRoute = async (pharma, mode) => {
     if (!userPos) return null;
@@ -227,14 +235,6 @@ export default function PharmaciesMapPage() {
       { enableHighAccuracy: true, maximumAge: 3000 }
     );
     setWatchId(id);
-  };
-
-  const stopTracking = () => {
-    if (watchId) {
-      navigator.geolocation?.clearWatch(watchId);
-      setWatchId(null);
-    }
-    setTracking(false);
   };
 
   const clearRoute = () => {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Input from '../atoms/Input';
 import Button from '../atoms/Button';
-import Alert from '../atoms/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock, User, Phone, KeyRound } from 'lucide-react';
 
@@ -11,7 +11,6 @@ export default function RegisterForm({ role = 'patient' }) {
   const [form, setForm] = useState({ nom: '', prenom: '', email: '', telephone: '', password: '', password_confirmation: '' });
   const [userId, setUserId] = useState(null);
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { register, verifyOtp } = useAuth();
@@ -24,7 +23,6 @@ export default function RegisterForm({ role = 'patient' }) {
 
   const handleSubmitInscription = async (e) => {
     e.preventDefault();
-    setError('');
     setErrors({});
     setLoading(true);
 
@@ -40,7 +38,7 @@ export default function RegisterForm({ role = 'patient' }) {
         });
         setErrors(apiErrors);
       } else {
-        setError(err.response?.data?.message || "Erreur lors de l'inscription");
+        toast.error(err.response?.data?.message || "Erreur lors de l'inscription");
       }
     } finally {
       setLoading(false);
@@ -49,7 +47,6 @@ export default function RegisterForm({ role = 'patient' }) {
 
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -59,7 +56,7 @@ export default function RegisterForm({ role = 'patient' }) {
         : 'Compte confirmé avec succès. Vous pouvez maintenant vous connecter.';
       navigate('/login', { state: { message } });
     } catch (err) {
-      setError(err.response?.data?.message || 'Code invalide ou expiré.');
+      toast.error(err.response?.data?.message || 'Code invalide ou expiré.');
     } finally {
       setLoading(false);
     }
@@ -68,7 +65,6 @@ export default function RegisterForm({ role = 'patient' }) {
   if (etape === 'otp') {
     return (
       <form onSubmit={handleSubmitOtp} className="space-y-4">
-        {error && <Alert variant="error">{error}</Alert>}
 
         <p className="text-sm text-gris">
           Un code à 6 chiffres a été envoyé à <span className="font-medium text-noir">{form.email}</span>.
@@ -95,7 +91,6 @@ export default function RegisterForm({ role = 'patient' }) {
 
   return (
     <form onSubmit={handleSubmitInscription} className="space-y-4">
-      {error && <Alert variant="error">{error}</Alert>}
 
       <div className="grid grid-cols-2 gap-3">
         <Input

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Plus } from 'lucide-react';
 import {
   useAdminMedicaments, useCreerMedicament, useModifierMedicament,
@@ -9,6 +10,7 @@ import MedicamentsTable from '../../components/organisms/MedicamentsTable';
 import MedicamentForm from '../../components/molecules/MedicamentForm';
 import Button from '../../components/atoms/Button';
 import Modal from '../../components/atoms/Modal';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import Pagination from '../../components/atoms/Pagination';
 
@@ -19,7 +21,6 @@ export default function MedicamentsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [medicamentEnEdition, setMedicamentEnEdition] = useState(null);
   const [medicamentADesactiver, setMedicamentADesactiver] = useState(null);
-  const [message, setMessage] = useState(null);
 
   const { data, isLoading, isError, error } = useAdminMedicaments({ search: search || undefined, statut: statut || undefined, page });
   const creer = useCreerMedicament();
@@ -58,27 +59,27 @@ export default function MedicamentsPage() {
 
     mutation
       .then(() => {
-        setMessage({ type: 'success', text: medicamentEnEdition ? 'Médicament mis à jour.' : 'Médicament ajouté au référentiel.' });
+        toast.success(medicamentEnEdition ? 'Médicament mis à jour.' : 'Médicament ajouté au référentiel.');
         setModalOpen(false);
       })
       .catch((err) => {
-        setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' });
+        toast.error(err.response?.data?.message || 'Une erreur est survenue.');
       });
   };
 
   const confirmerDesactivation = () => {
     if (!medicamentADesactiver) return;
     desactiver.mutate(medicamentADesactiver.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Médicament désactivé.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la désactivation.' }),
+      onSuccess: () => toast.success('Médicament désactivé.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors de la désactivation.'),
       onSettled: () => setMedicamentADesactiver(null),
     });
   };
 
   const handleReactiver = (med) => {
     reactiver.mutate(med.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Médicament réactivé.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la réactivation.' }),
+      onSuccess: () => toast.success('Médicament réactivé.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors de la réactivation.'),
     });
   };
 
@@ -91,7 +92,6 @@ export default function MedicamentsPage() {
         </Button>
       </div>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les médicaments.'}
@@ -131,21 +131,15 @@ export default function MedicamentsPage() {
         />
       </Modal>
 
-      <Modal
+      <ConfirmDialog
         open={!!medicamentADesactiver}
         onClose={() => setMedicamentADesactiver(null)}
+        onConfirm={confirmerDesactivation}
         title="Désactiver le médicament"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setMedicamentADesactiver(null)}>Annuler</Button>
-            <Button variant="danger" loading={desactiver.isPending} onClick={confirmerDesactivation}>Désactiver</Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gris">
-          {medicamentADesactiver && `Désactiver "${medicamentADesactiver.designation}" ? Il ne sera plus visible des patients.`}
-        </p>
-      </Modal>
+        description={medicamentADesactiver && `Désactiver "${medicamentADesactiver.designation}" ? Il ne sera plus visible des patients.`}
+        confirmLabel="Désactiver"
+        loading={desactiver.isPending}
+      />
     </div>
   );
 }
