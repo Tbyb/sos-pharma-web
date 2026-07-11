@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Truck, Ban, RotateCcw } from 'lucide-react';
 import {
   useLivreurs, useLivreurMissions, useSuspendreLivreur, useReactiverLivreur,
@@ -8,12 +9,13 @@ import Badge from '../../components/atoms/Badge';
 import Button from '../../components/atoms/Button';
 import Skeleton from '../../components/atoms/Skeleton';
 import Modal from '../../components/atoms/Modal';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import { formatDate } from '../../utils/formatters';
 
 export default function LivreursPage() {
   const [missionsLivreurId, setMissionsLivreurId] = useState(null);
-  const [message, setMessage] = useState(null);
+  const [livreurASuspendre, setLivreurASuspendre] = useState(null);
 
   const { data, isLoading, isError, error } = useLivreurs();
   const { data: missionsRes, isLoading: loadingMissions } = useLivreurMissions(missionsLivreurId);
@@ -23,14 +25,19 @@ export default function LivreursPage() {
   const livreurs = data?.data || [];
   const missions = missionsRes?.data || [];
 
-  const toggleStatut = (livreur) => {
-    const mutation = livreur.statut === 'suspendu' ? reactiver : suspendre;
-    mutation.mutate(livreur.id, {
-      onSuccess: () => setMessage({
-        type: 'success',
-        text: livreur.statut === 'suspendu' ? 'Livreur réactivé.' : 'Livreur suspendu.',
-      }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+  const handleReactiver = (livreur) => {
+    reactiver.mutate(livreur.id, {
+      onSuccess: () => toast.success('Livreur réactivé.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
+    });
+  };
+
+  const confirmerSuspension = () => {
+    if (!livreurASuspendre) return;
+    suspendre.mutate(livreurASuspendre.id, {
+      onSuccess: () => toast.success('Livreur suspendu.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
+      onSettled: () => setLivreurASuspendre(null),
     });
   };
 
@@ -38,7 +45,6 @@ export default function LivreursPage() {
     <div>
       <h1 className="text-2xl font-bold text-noir mb-6">Gestion des livreurs</h1>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les livreurs.'}
@@ -82,11 +88,11 @@ export default function LivreursPage() {
                         <Truck className="w-4 h-4" />
                       </Button>
                       {livreur.statut === 'suspendu' ? (
-                        <Button variant="ghost" size="sm" onClick={() => toggleStatut(livreur)} title="Réactiver">
+                        <Button variant="ghost" size="sm" onClick={() => handleReactiver(livreur)} title="Réactiver">
                           <RotateCcw className="w-4 h-4 text-succes" />
                         </Button>
                       ) : (
-                        <Button variant="ghost" size="sm" onClick={() => toggleStatut(livreur)} title="Suspendre">
+                        <Button variant="ghost" size="sm" onClick={() => setLivreurASuspendre(livreur)} title="Suspendre">
                           <Ban className="w-4 h-4 text-danger" />
                         </Button>
                       )}
@@ -128,6 +134,16 @@ export default function LivreursPage() {
           <p className="text-sm text-gris py-6 text-center">Aucune livraison pour ce livreur.</p>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={!!livreurASuspendre}
+        onClose={() => setLivreurASuspendre(null)}
+        onConfirm={confirmerSuspension}
+        title="Suspendre le livreur"
+        description={livreurASuspendre && `Suspendre "${livreurASuspendre.nom}" ? Il ne pourra plus accepter de nouvelles missions.`}
+        confirmLabel="Suspendre"
+        loading={suspendre.isPending}
+      />
     </div>
   );
 }

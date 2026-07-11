@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   useCommandesPharmacie, useAccepterCommande, useRefuserCommande, useMarquerPrete,
 } from '../../hooks/useCommandes';
@@ -7,8 +8,7 @@ import CommandeDetails from '../../components/molecules/CommandeDetails';
 import Skeleton from '../../components/atoms/Skeleton';
 import Alert from '../../components/atoms/Alert';
 import Modal from '../../components/atoms/Modal';
-import Textarea from '../../components/atoms/Textarea';
-import Button from '../../components/atoms/Button';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Pagination from '../../components/atoms/Pagination';
 
 const ONGLETS = [
@@ -21,7 +21,6 @@ const ONGLETS = [
 export default function CommandesPharmaciePage() {
   const [onglet, setOnglet] = useState('en_attente');
   const [page, setPage] = useState(1);
-  const [message, setMessage] = useState(null);
   const [commandeDetail, setCommandeDetail] = useState(null);
   const [refusCommande, setRefusCommande] = useState(null);
   const [motif, setMotif] = useState('');
@@ -43,8 +42,8 @@ export default function CommandesPharmaciePage() {
 
   const handleAccepter = (commande) => {
     accepter.mutate(commande.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Commande acceptée.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || "Erreur lors de l'acceptation." }),
+      onSuccess: () => toast.success('Commande acceptée.'),
+      onError: (err) => toast.error(err.response?.data?.message || "Erreur lors de l'acceptation."),
     });
   };
 
@@ -61,16 +60,16 @@ export default function CommandesPharmaciePage() {
   const confirmerRefus = () => {
     if (!refusCommande || !motif.trim()) return;
     refuser.mutate({ id: refusCommande.id, motif }, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Commande refusée.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du refus.' }),
+      onSuccess: () => toast.success('Commande refusée.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors du refus.'),
       onSettled: () => fermerRefus(),
     });
   };
 
   const handleMarquerPrete = (commande) => {
     marquerPrete.mutate(commande.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Commande marquée comme prête.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la mise à jour.' }),
+      onSuccess: () => toast.success('Commande marquée comme prête.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors de la mise à jour.'),
     });
   };
 
@@ -78,7 +77,6 @@ export default function CommandesPharmaciePage() {
     <div>
       <h1 className="text-2xl font-bold text-noir mb-6">Mes commandes</h1>
 
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les commandes.'}
@@ -135,31 +133,20 @@ export default function CommandesPharmaciePage() {
         {commandeDetail && <CommandeDetails commande={commandeDetail} />}
       </Modal>
 
-      <Modal
+      <ConfirmDialog
         open={!!refusCommande}
         onClose={fermerRefus}
+        onConfirm={confirmerRefus}
         title="Refuser la commande"
-        footer={
-          <>
-            <Button variant="ghost" onClick={fermerRefus}>Annuler</Button>
-            <Button variant="danger" loading={refuser.isPending} disabled={!motif.trim()} onClick={confirmerRefus}>
-              Refuser
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-gris">
-          {refusCommande && `Refuser la commande #${refusCommande.id} ? Le patient sera notifié du motif.`}
-        </p>
-        <Textarea
-          className="mt-3"
-          label="Motif du refus"
-          placeholder="Ex: médicament indisponible, rupture de stock..."
-          value={motif}
-          onChange={(e) => setMotif(e.target.value)}
-          rows={3}
-        />
-      </Modal>
+        description={refusCommande && `Refuser la commande #${refusCommande.id} ? Le patient sera notifié du motif.`}
+        confirmLabel="Refuser"
+        loading={refuser.isPending}
+        motif={motif}
+        onMotifChange={setMotif}
+        motifLabel="Motif du refus"
+        motifPlaceholder="Ex: médicament indisponible, rupture de stock..."
+        motifRequired
+      />
     </div>
   );
 }

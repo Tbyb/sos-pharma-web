@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { MapPin, Phone, BadgeCheck } from 'lucide-react';
 import { useMaPharmacie, useModifierMaPharmacie } from '../../hooks/usePharmacies';
 import Card from '../../components/atoms/Card';
@@ -47,8 +48,6 @@ function InfosPharmacie({ pharmacie }) {
     latitude: pharmacie.latitude || '',
     longitude: pharmacie.longitude || '',
   });
-  const [message, setMessage] = useState(null);
-
   const statut = STATUTS_PHARMACIE[pharmacie.statut] || { label: pharmacie.statut, couleur: '#6B7280', fond: '#F3F4F6' };
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -56,15 +55,13 @@ function InfosPharmacie({ pharmacie }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     modifier.mutate(form, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Informations mises à jour.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onSuccess: () => toast.success('Informations mises à jour.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
     });
   };
 
   return (
     <>
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
-
       <Card className="mb-4">
         <div className="flex items-start justify-between gap-4">
           <div>

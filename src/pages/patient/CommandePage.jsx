@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { usePanier } from '../../contexts/PanierContext';
 import { useCreerCommande } from '../../hooks/useCommandes';
 import { useInitierPaiement } from '../../hooks/usePaiement';
@@ -7,14 +8,15 @@ import { useGeolocation } from '../../hooks/useGeolocation';
 import Button from '../../components/atoms/Button';
 import Card from '../../components/atoms/Card';
 import Input from '../../components/atoms/Input';
-import Alert from '../../components/atoms/Alert';
 import { formatMontant } from '../../utils/formatters';
 import { geocoderInverse } from '../../utils/geo';
-import { MapPin, Truck, Store, Smartphone, LocateFixed } from 'lucide-react';
+import { MapPin, Truck, Store, Smartphone, CreditCard, LocateFixed } from 'lucide-react';
 
 const MODES_PAIEMENT = [
-  { id: 'wave', nom: 'Wave', couleur: '#1DC3F0' },
-  { id: 'orange_money', nom: 'Orange Money', couleur: '#FF6600' },
+  { id: 'wave', nom: 'Wave', couleur: '#1DC3F0', icone: Smartphone },
+  { id: 'orange_money', nom: 'Orange Money', couleur: '#FF6600', icone: Smartphone },
+  { id: 'free_money', nom: 'Free Money', couleur: '#E4032E', icone: Smartphone },
+  { id: 'carte', nom: 'Carte bancaire', couleur: '#1A6FBF', icone: CreditCard },
 ];
 
 export default function CommandePage() {
@@ -26,7 +28,6 @@ export default function CommandePage() {
   const [mode, setMode] = useState('retrait');
   const [modePaiement, setModePaiement] = useState('wave');
   const [adresse, setAdresse] = useState('');
-  const [erreur, setErreur] = useState('');
   const [loading, setLoading] = useState(false);
   const [chargementAdresse, setChargementAdresse] = useState(false);
 
@@ -40,7 +41,7 @@ export default function CommandePage() {
           .then((adresseTrouvee) => {
             if (adresseTrouvee) setAdresse(adresseTrouvee);
           })
-          .catch(() => setErreur("Impossible de récupérer l'adresse depuis votre position. Saisissez-la manuellement."))
+          .catch(() => toast.error("Impossible de récupérer l'adresse depuis votre position. Saisissez-la manuellement."))
           .finally(() => setChargementAdresse(false));
       },
     });
@@ -53,12 +54,11 @@ export default function CommandePage() {
 
   const handleCommander = async () => {
     if (mode === 'livraison' && !adresse.trim()) {
-      setErreur('Veuillez saisir votre adresse de livraison');
+      toast.error('Veuillez saisir votre adresse de livraison');
       return;
     }
 
     setLoading(true);
-    setErreur('');
 
     try {
       const commandeData = {
@@ -93,7 +93,7 @@ export default function CommandePage() {
         state: { reference, montant: total, modePaiement },
       });
     } catch (err) {
-      setErreur(err.response?.data?.message || 'Une erreur est survenue lors de la commande');
+      toast.error(err.response?.data?.message || 'Une erreur est survenue lors de la commande');
     } finally {
       setLoading(false);
     }
@@ -102,8 +102,6 @@ export default function CommandePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-noir mb-6">Passer commande</h1>
-
-      {erreur && <Alert variant="error" className="mb-4">{erreur}</Alert>}
 
       <Card className="mb-4">
         <h2 className="font-semibold text-noir mb-4">Récapitulatif</h2>
@@ -185,7 +183,7 @@ export default function CommandePage() {
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <Smartphone
+              <mp.icone
                 className="w-6 h-6 mx-auto mb-2"
                 style={{ color: modePaiement === mp.id ? mp.couleur : '#6B7280' }}
               />

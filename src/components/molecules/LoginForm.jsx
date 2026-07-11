@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Input from '../atoms/Input';
 import Button from '../atoms/Button';
-import Alert from '../atoms/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock } from 'lucide-react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -26,7 +24,7 @@ export default function LoginForm() {
       else if (role === 'pharmacien') navigate('/pharmacien/catalogue');
       else navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Email ou mot de passe incorrect');
+      toast.error(err.response?.data?.message || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);
     }
@@ -34,8 +32,6 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <Alert variant="error">{error}</Alert>}
-
       <Input
         label="Email"
         type="email"

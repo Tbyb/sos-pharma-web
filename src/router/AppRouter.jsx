@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import RoleRoute from './RoleRoute';
@@ -5,87 +6,98 @@ import RoleRoute from './RoleRoute';
 import PublicLayout from '../components/templates/PublicLayout';
 import AdminLayout from '../components/templates/AdminLayout';
 import PharmacienLayout from '../components/templates/PharmacienLayout';
+import Spinner from '../components/atoms/Spinner';
 
-import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
-import RegisterPharmacienPage from '../pages/auth/RegisterPharmacienPage';
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
+const RegisterPharmacienPage = lazy(() => import('../pages/auth/RegisterPharmacienPage'));
 
-import HomePage from '../pages/public/HomePage';
-import MedicamentDetailPage from '../pages/public/MedicamentDetailPage';
-import ComparaisonPrixPage from '../pages/public/ComparaisonPrixPage';
-import PharmaciesMapPage from '../pages/public/PharmaciesMapPage';
+const HomePage = lazy(() => import('../pages/public/HomePage'));
+const MedicamentDetailPage = lazy(() => import('../pages/public/MedicamentDetailPage'));
+const ComparaisonPrixPage = lazy(() => import('../pages/public/ComparaisonPrixPage'));
+const PharmaciesMapPage = lazy(() => import('../pages/public/PharmaciesMapPage'));
 
-import PanierPage from '../pages/patient/PanierPage';
-import CommandePage from '../pages/patient/CommandePage';
-import PaiementPage from '../pages/patient/PaiementPage';
-import MesCommandesPage from '../pages/patient/MesCommandesPage';
-import CommandeDetailPage from '../pages/patient/CommandeDetailPage';
-import ModifierCommandePage from '../pages/patient/ModifierCommandePage';
-import ProfilPage from '../pages/patient/ProfilPage';
+const PanierPage = lazy(() => import('../pages/patient/PanierPage'));
+const CommandePage = lazy(() => import('../pages/patient/CommandePage'));
+const PaiementPage = lazy(() => import('../pages/patient/PaiementPage'));
+const MesCommandesPage = lazy(() => import('../pages/patient/MesCommandesPage'));
+const CommandeDetailPage = lazy(() => import('../pages/patient/CommandeDetailPage'));
+const ModifierCommandePage = lazy(() => import('../pages/patient/ModifierCommandePage'));
+const ProfilPage = lazy(() => import('../pages/patient/ProfilPage'));
 
-import DashboardPage from '../pages/admin/DashboardPage';
-import MedicamentsPage from '../pages/admin/MedicamentsPage';
-import PharmaciesPage from '../pages/admin/PharmaciesPage';
-import PharmacieDetailPage from '../pages/admin/PharmacieDetailPage';
-import CommandesPage from '../pages/admin/CommandesPage';
-import LivreursPage from '../pages/admin/LivreursPage';
-import TransactionsPage from '../pages/admin/TransactionsPage';
+const DashboardPage = lazy(() => import('../pages/admin/DashboardPage'));
+const MedicamentsPage = lazy(() => import('../pages/admin/MedicamentsPage'));
+const PharmaciesPage = lazy(() => import('../pages/admin/PharmaciesPage'));
+const PharmacieDetailPage = lazy(() => import('../pages/admin/PharmacieDetailPage'));
+const CommandesPage = lazy(() => import('../pages/admin/CommandesPage'));
+const LivreursPage = lazy(() => import('../pages/admin/LivreursPage'));
+const TransactionsPage = lazy(() => import('../pages/admin/TransactionsPage'));
 
-import CataloguePage from '../pages/pharmacien/CataloguePage';
-import CommandesPharmaciePage from '../pages/pharmacien/CommandesPharmaciePage';
-import MaPharmaciePage from '../pages/pharmacien/MaPharmaciePage';
+const CataloguePage = lazy(() => import('../pages/pharmacien/CataloguePage'));
+const CommandesPharmaciePage = lazy(() => import('../pages/pharmacien/CommandesPharmaciePage'));
+const MaPharmaciePage = lazy(() => import('../pages/pharmacien/MaPharmaciePage'));
+
+function ChargementPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Spinner size="lg" />
+    </div>
+  );
+}
 
 export default function AppRouter() {
   return (
-    <Routes>
-      {/* Auth (sans layout) */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/register-pharmacien" element={<RegisterPharmacienPage />} />
+    <Suspense fallback={<ChargementPage />}>
+      <Routes>
+        {/* Auth (sans layout) */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register-pharmacien" element={<RegisterPharmacienPage />} />
 
-      {/* Pages publiques avec PublicLayout */}
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/medicaments/:id" element={<MedicamentDetailPage />} />
-        <Route path="/comparaison" element={<ComparaisonPrixPage />} />
-        <Route path="/pharmacies" element={<PharmaciesMapPage />} />
+        {/* Pages publiques avec PublicLayout */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/medicaments/:id" element={<MedicamentDetailPage />} />
+          <Route path="/comparaison" element={<ComparaisonPrixPage />} />
+          <Route path="/pharmacies" element={<PharmaciesMapPage />} />
 
-        {/* Routes patient (connecté + layout public) */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/patient/panier" element={<PanierPage />} />
-          <Route path="/patient/commander" element={<CommandePage />} />
-          <Route path="/patient/paiement/:id" element={<PaiementPage />} />
-          <Route path="/patient/commandes" element={<MesCommandesPage />} />
-          <Route path="/patient/commandes/:id" element={<CommandeDetailPage />} />
-          <Route path="/patient/commandes/:id/modifier" element={<ModifierCommandePage />} />
-          <Route path="/patient/profil" element={<ProfilPage />} />
+          {/* Routes patient (connecté + layout public) */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/patient/panier" element={<PanierPage />} />
+            <Route path="/patient/commander" element={<CommandePage />} />
+            <Route path="/patient/paiement/:id" element={<PaiementPage />} />
+            <Route path="/patient/commandes" element={<MesCommandesPage />} />
+            <Route path="/patient/commandes/:id" element={<CommandeDetailPage />} />
+            <Route path="/patient/commandes/:id/modifier" element={<ModifierCommandePage />} />
+            <Route path="/patient/profil" element={<ProfilPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* Routes admin avec AdminLayout */}
-      <Route element={<RoleRoute role="administrateur" />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
-          <Route path="/admin/medicaments" element={<MedicamentsPage />} />
-          <Route path="/admin/pharmacies" element={<PharmaciesPage />} />
-          <Route path="/admin/pharmacies/:id" element={<PharmacieDetailPage />} />
-          <Route path="/admin/livreurs" element={<LivreursPage />} />
-          <Route path="/admin/commandes" element={<CommandesPage />} />
-          <Route path="/admin/transactions" element={<TransactionsPage />} />
+        {/* Routes admin avec AdminLayout */}
+        <Route element={<RoleRoute role="administrateur" />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<DashboardPage />} />
+            <Route path="/admin/medicaments" element={<MedicamentsPage />} />
+            <Route path="/admin/pharmacies" element={<PharmaciesPage />} />
+            <Route path="/admin/pharmacies/:id" element={<PharmacieDetailPage />} />
+            <Route path="/admin/livreurs" element={<LivreursPage />} />
+            <Route path="/admin/commandes" element={<CommandesPage />} />
+            <Route path="/admin/transactions" element={<TransactionsPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* Routes pharmacien avec PharmacienLayout */}
-      <Route element={<RoleRoute role="pharmacien" />}>
-        <Route element={<PharmacienLayout />}>
-          <Route path="/pharmacien/catalogue" element={<CataloguePage />} />
-          <Route path="/pharmacien/commandes" element={<CommandesPharmaciePage />} />
-          <Route path="/pharmacien/pharmacie" element={<MaPharmaciePage />} />
+        {/* Routes pharmacien avec PharmacienLayout */}
+        <Route element={<RoleRoute role="pharmacien" />}>
+          <Route element={<PharmacienLayout />}>
+            <Route path="/pharmacien/catalogue" element={<CataloguePage />} />
+            <Route path="/pharmacien/commandes" element={<CommandesPharmaciePage />} />
+            <Route path="/pharmacien/pharmacie" element={<MaPharmaciePage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* 404 */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }

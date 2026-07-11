@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useCommandeDetail, useAnnulerCommande, useSupprimerCommande } from '../../hooks/useCommandes';
 import Spinner from '../../components/atoms/Spinner';
 import Card from '../../components/atoms/Card';
 import Badge from '../../components/atoms/Badge';
 import Button from '../../components/atoms/Button';
-import Modal from '../../components/atoms/Modal';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import { formatMontant, formatDate } from '../../utils/formatters';
 import { STATUTS_COMMANDE } from '../../utils/constants';
@@ -19,7 +20,6 @@ export default function CommandeDetailPage() {
   const supprimerCommande = useSupprimerCommande();
 
   const [modalAction, setModalAction] = useState(null);
-  const [erreur, setErreur] = useState('');
 
   if (isLoading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
@@ -40,24 +40,24 @@ export default function CommandeDetailPage() {
   const peutSupprimer = ['en_attente', 'en_cours', 'refusee', 'livree', 'annulee'].includes(statutKey);
 
   const handleAnnuler = async () => {
-    setErreur('');
     try {
       await annulerCommande.mutateAsync(id);
+      toast.success('Commande annulée.');
       setModalAction(null);
       navigate('/patient/commandes');
     } catch (err) {
-      setErreur(err.response?.data?.message || 'Impossible d\'annuler cette commande');
+      toast.error(err.response?.data?.message || 'Impossible d\'annuler cette commande');
     }
   };
 
   const handleSupprimer = async () => {
-    setErreur('');
     try {
       await supprimerCommande.mutateAsync(id);
+      toast.success('Commande supprimée de votre historique.');
       setModalAction(null);
       navigate('/patient/commandes');
     } catch (err) {
-      setErreur(err.response?.data?.message || 'Impossible de supprimer cette commande');
+      toast.error(err.response?.data?.message || 'Impossible de supprimer cette commande');
     }
   };
 
@@ -72,8 +72,6 @@ export default function CommandeDetailPage() {
         <h1 className="text-2xl font-bold text-noir">Commande #{commande.id}</h1>
         <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
       </div>
-
-      {erreur && <Alert variant="error" className="mb-4">{erreur}</Alert>}
 
       {statutKey === 'refusee' && commande.motif_refus && (
         <Alert variant="error" className="mb-4">
@@ -169,43 +167,25 @@ export default function CommandeDetailPage() {
         </Card>
       )}
 
-      <Modal
+      <ConfirmDialog
         open={modalAction === 'annuler'}
         onClose={() => setModalAction(null)}
+        onConfirm={handleAnnuler}
         title="Annuler la commande"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setModalAction(null)}>Non, garder</Button>
-            <Button variant="danger" onClick={handleAnnuler} loading={annulerCommande.isPending}>
-              Oui, annuler
-            </Button>
-          </>
-        }
-      >
-        <p className="text-gris">
-          Êtes-vous sûr de vouloir annuler la commande #{commande.id} ?
-          Cette action est irréversible.
-        </p>
-      </Modal>
+        confirmLabel="Oui, annuler"
+        loading={annulerCommande.isPending}
+        description="Êtes-vous sûr de vouloir annuler cette commande ? Cette action est irréversible."
+      />
 
-      <Modal
+      <ConfirmDialog
         open={modalAction === 'supprimer'}
         onClose={() => setModalAction(null)}
+        onConfirm={handleSupprimer}
         title="Supprimer la commande"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setModalAction(null)}>Non, garder</Button>
-            <Button variant="danger" onClick={handleSupprimer} loading={supprimerCommande.isPending}>
-              Oui, supprimer
-            </Button>
-          </>
-        }
-      >
-        <p className="text-gris">
-          Êtes-vous sûr de vouloir supprimer la commande #{commande.id} de votre historique ?
-          Elle ne sera plus visible dans vos commandes.
-        </p>
-      </Modal>
+        confirmLabel="Oui, supprimer"
+        loading={supprimerCommande.isPending}
+        description="Êtes-vous sûr de vouloir supprimer cette commande de votre historique ? Elle ne sera plus visible dans vos commandes."
+      />
     </div>
   );
 }

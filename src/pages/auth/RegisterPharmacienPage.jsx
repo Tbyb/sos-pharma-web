@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import Card from '../../components/atoms/Card';
 import Input from '../../components/atoms/Input';
 import Button from '../../components/atoms/Button';
-import Alert from '../../components/atoms/Alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { useInscrirePharmacie } from '../../hooks/usePharmacies';
 import { useGeolocation } from '../../hooks/useGeolocation';
@@ -25,7 +25,6 @@ export default function RegisterPharmacienPage() {
   const [chargementAdresse, setChargementAdresse] = useState(false);
   const [userId, setUserId] = useState(null);
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -56,11 +55,10 @@ export default function RegisterPharmacienPage() {
 
   const handleSubmitInscription = async (e) => {
     e.preventDefault();
-    setError('');
     setErrors({});
 
     if (!coords) {
-      setError('Veuillez renseigner la localisation GPS de votre pharmacie.');
+      toast.error('Veuillez renseigner la localisation GPS de votre pharmacie.');
       return;
     }
 
@@ -80,7 +78,7 @@ export default function RegisterPharmacienPage() {
         });
         setErrors(apiErrors);
       } else {
-        setError(err.response?.data?.message || "Erreur lors de l'inscription");
+        toast.error(err.response?.data?.message || "Erreur lors de l'inscription");
       }
     } finally {
       setLoading(false);
@@ -89,13 +87,12 @@ export default function RegisterPharmacienPage() {
 
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       await verifyOtp({ user_id: userId, otp });
     } catch (err) {
-      setError(err.response?.data?.message || 'Code invalide ou expiré.');
+      toast.error(err.response?.data?.message || 'Code invalide ou expiré.');
       setLoading(false);
       return;
     }
@@ -140,8 +137,6 @@ export default function RegisterPharmacienPage() {
 
           <Card>
             <form onSubmit={handleSubmitOtp} className="space-y-4">
-              {error && <Alert variant="error">{error}</Alert>}
-
               <p className="text-sm text-gris">
                 Un code à 6 chiffres a été envoyé à <span className="font-medium text-noir">{form.email}</span>.
                 Entrez-le ci-dessous pour confirmer votre compte et finaliser l'inscription de votre pharmacie.
@@ -181,8 +176,6 @@ export default function RegisterPharmacienPage() {
 
         <Card>
           <form onSubmit={handleSubmitInscription} className="space-y-6">
-            {error && <Alert variant="error">{error}</Alert>}
-
             <div>
               <h2 className="font-semibold text-noir mb-3">Vos informations (responsable)</h2>
               <div className="space-y-4">

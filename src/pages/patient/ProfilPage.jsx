@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../../components/atoms/Button';
 import Input from '../../components/atoms/Input';
 import Card from '../../components/atoms/Card';
-import Alert from '../../components/atoms/Alert';
-import { User, Mail, Phone, Settings, Eye, Lock, Camera } from 'lucide-react';
+import { User, Mail, Phone, Settings, Eye, Lock } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
 
 export default function ProfilPage() {
@@ -92,7 +92,7 @@ function InfoRow({ icon, label, value }) {
 }
 
 function ProfilSettings({ user }) {
-  const { login } = useAuth();
+  const { updateUser } = useAuth();
   const [section, setSection] = useState('infos');
 
   return (
@@ -116,13 +116,13 @@ function ProfilSettings({ user }) {
         </button>
       </div>
 
-      {section === 'infos' && <InfosForm user={user} login={login} />}
+      {section === 'infos' && <InfosForm user={user} updateUser={updateUser} />}
       {section === 'motdepasse' && <MotDePasseForm />}
     </div>
   );
 }
 
-function InfosForm({ user, login }) {
+function InfosForm({ user, updateUser }) {
   const [form, setForm] = useState({
     nom: user?.nom || '',
     prenom: user?.prenom || '',
@@ -130,7 +130,6 @@ function InfosForm({ user, login }) {
     telephone: user?.telephone || '',
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -139,15 +138,14 @@ function InfosForm({ user, login }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
 
     try {
       const res = await axiosInstance.put('/profil', form);
       const updatedUser = res.data.data || res.data.user || res.data;
-      login({ ...user, ...updatedUser }, localStorage.getItem('sos_pharma_token'));
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
+      updateUser(updatedUser);
+      toast.success('Profil mis à jour avec succès');
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la mise à jour' });
+      toast.error(err.response?.data?.message || 'Erreur lors de la mise à jour');
     } finally {
       setLoading(false);
     }
@@ -155,7 +153,6 @@ function InfosForm({ user, login }) {
 
   return (
     <Card>
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Prénom" name="prenom" value={form.prenom} onChange={handleChange} icon={<User className="w-4 h-4" />} />
@@ -178,7 +175,6 @@ function MotDePasseForm() {
     password_confirmation: '',
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -187,19 +183,18 @@ function MotDePasseForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.password_confirmation) {
-      setMessage({ type: 'error', text: 'Les mots de passe ne correspondent pas' });
+      toast.error('Les mots de passe ne correspondent pas');
       return;
     }
 
     setLoading(true);
-    setMessage(null);
 
     try {
       await axiosInstance.put('/profil/mot-de-passe', form);
-      setMessage({ type: 'success', text: 'Mot de passe modifié avec succès' });
+      toast.success('Mot de passe modifié avec succès');
       setForm({ current_password: '', password: '', password_confirmation: '' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du changement de mot de passe' });
+      toast.error(err.response?.data?.message || 'Erreur lors du changement de mot de passe');
     } finally {
       setLoading(false);
     }
@@ -207,7 +202,6 @@ function MotDePasseForm() {
 
   return (
     <Card>
-      {message && <Alert variant={message.type} className="mb-4">{message.text}</Alert>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Mot de passe actuel"

@@ -5,14 +5,7 @@ import TransactionsList from '../../components/organisms/TransactionsList';
 import StatCard from '../../components/molecules/StatCard';
 import Alert from '../../components/atoms/Alert';
 import Pagination from '../../components/atoms/Pagination';
-import { STATUTS_PAIEMENT, COULEURS } from '../../utils/constants';
-
-const MODES = [
-  { value: 'orange_money', label: 'Orange Money' },
-  { value: 'wave', label: 'Wave' },
-  { value: 'virement', label: 'Virement' },
-  { value: 'stripe', label: 'Carte (Stripe)' },
-];
+import { STATUTS_PAIEMENT, MODES_PAIEMENT, COULEURS } from '../../utils/constants';
 
 const FILTRES_INITIAUX = { statut: '', mode: '', date_debut: '', date_fin: '' };
 
@@ -76,8 +69,8 @@ export default function TransactionsPage() {
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
         >
           <option value="">Tous les modes</option>
-          {MODES.map((m) => (
-            <option key={m.value} value={m.value}>{m.label}</option>
+          {Object.entries(MODES_PAIEMENT).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
           ))}
         </select>
 

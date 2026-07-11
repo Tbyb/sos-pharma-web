@@ -60,7 +60,7 @@ export default function NotificationBell() {
       </button>
 
       {ouvert && (
-        <div className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-lg shadow-lg border z-50">
+        <div className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-lg shadow-lg border z-50 animate-[scale-in_0.12s_ease-out]">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <h3 className="font-semibold text-noir text-sm">Notifications</h3>
             {nonLues > 0 && (

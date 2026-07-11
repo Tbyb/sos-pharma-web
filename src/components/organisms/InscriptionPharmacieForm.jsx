@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import Card from '../atoms/Card';
 import Input from '../atoms/Input';
 import Button from '../atoms/Button';
-import Alert from '../atoms/Alert';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { geocoderInverse } from '../../utils/geo';
 import { useInscrirePharmacie } from '../../hooks/usePharmacies';
@@ -13,7 +13,6 @@ export default function InscriptionPharmacieForm() {
   const [document, setDocument] = useState(null);
   const [coords, setCoords] = useState(null);
   const [chargementAdresse, setChargementAdresse] = useState(false);
-  const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
 
   const { statut: statutGeoloc, demanderPosition } = useGeolocation();
@@ -41,11 +40,10 @@ export default function InscriptionPharmacieForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setErrors({});
 
     if (!coords) {
-      setError('Veuillez renseigner la localisation GPS de votre pharmacie.');
+      toast.error('Veuillez renseigner la localisation GPS de votre pharmacie.');
       return;
     }
 
@@ -65,7 +63,7 @@ export default function InscriptionPharmacieForm() {
         });
         setErrors(apiErrors);
       } else {
-        setError(err.response?.data?.message || "Erreur lors de l'inscription de la pharmacie");
+        toast.error(err.response?.data?.message || "Erreur lors de l'inscription de la pharmacie");
       }
     }
   };
@@ -78,8 +76,6 @@ export default function InscriptionPharmacieForm() {
           Renseignez les informations officielles de votre pharmacie. Votre compte sera en attente
           de certification par notre équipe avant de pouvoir recevoir des commandes.
         </p>
-
-        {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input

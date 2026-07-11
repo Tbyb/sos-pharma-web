@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useConfirmerPaiement, useVerifierPaiement } from '../../hooks/usePaiement';
+import { useConfirmerPaiement } from '../../hooks/usePaiement';
 import { usePanier } from '../../contexts/PanierContext';
 import Button from '../../components/atoms/Button';
 import Card from '../../components/atoms/Card';
-import Alert from '../../components/atoms/Alert';
 import { formatMontant } from '../../utils/formatters';
+import { MODES_PAIEMENT } from '../../utils/constants';
 import { CreditCard, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
 
 export default function PaiementPage() {
@@ -16,13 +16,9 @@ export default function PaiementPage() {
   const confirmerPaiement = useConfirmerPaiement();
 
   const { reference, montant, modePaiement = 'wave' } = location.state || {};
-  const nomPaiement = modePaiement === 'orange_money' ? 'Orange Money' : 'Wave';
+  const nomPaiement = MODES_PAIEMENT[modePaiement] || modePaiement;
   const [etape, setEtape] = useState('attente');
   const [erreur, setErreur] = useState('');
-
-  const { data: statutData } = useVerifierPaiement(
-    etape === 'succes' ? reference : null
-  );
 
   if (!reference) {
     navigate('/patient/commandes');

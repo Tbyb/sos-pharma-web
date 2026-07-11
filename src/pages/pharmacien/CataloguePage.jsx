@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Plus, Upload } from 'lucide-react';
 import {
   useCatalogue, useAjouterMedicament, useModifierCatalogue,
@@ -8,10 +9,12 @@ import CatalogueTable from '../../components/organisms/CatalogueTable';
 import AjouterMedicamentForm from '../../components/molecules/AjouterMedicamentForm';
 import Button from '../../components/atoms/Button';
 import Modal from '../../components/atoms/Modal';
+import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 
 export default function CataloguePage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [stockARetirer, setStockARetirer] = useState(null);
   const [message, setMessage] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -27,31 +30,32 @@ export default function CataloguePage() {
   const handleAjouter = (form) => {
     ajouter.mutate(form, {
       onSuccess: () => {
-        setMessage({ type: 'success', text: 'Médicament ajouté au catalogue.' });
+        toast.success('Médicament ajouté au catalogue.');
         setModalOpen(false);
       },
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Une erreur est survenue.' }),
+      onError: (err) => toast.error(err.response?.data?.message || 'Une erreur est survenue.'),
     });
   };
 
   const handleModifier = (id, form) => {
     modifier.mutate({ id, data: form }, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Médicament mis à jour.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la mise à jour.' }),
+      onSuccess: () => toast.success('Médicament mis à jour.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors de la mise à jour.'),
     });
   };
 
   const handleToggle = (stock) => {
     toggleDispo.mutate({ id: stock.id, disponible: !stock.disponible }, {
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du changement de disponibilité.' }),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors du changement de disponibilité.'),
     });
   };
 
-  const handleRetirer = (stock) => {
-    if (!window.confirm(`Retirer "${stock.medicament?.designation}" de votre catalogue ?`)) return;
-    retirer.mutate(stock.id, {
-      onSuccess: () => setMessage({ type: 'success', text: 'Médicament retiré du catalogue.' }),
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du retrait.' }),
+  const confirmerRetrait = () => {
+    if (!stockARetirer) return;
+    retirer.mutate(stockARetirer.id, {
+      onSuccess: () => toast.success('Médicament retiré du catalogue.'),
+      onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors du retrait.'),
+      onSettled: () => setStockARetirer(null),
     });
   };
 
@@ -71,7 +75,7 @@ export default function CataloguePage() {
           details: erreurs,
         });
       },
-      onError: (err) => setMessage({ type: 'error', text: err.response?.data?.message || "Erreur lors de l'import." }),
+      onError: (err) => toast.error(err.response?.data?.message || "Erreur lors de l'import."),
     });
   };
 
@@ -112,7 +116,7 @@ export default function CataloguePage() {
           isLoading={isLoading}
           onToggleDisponibilite={handleToggle}
           onModifier={handleModifier}
-          onRetirer={handleRetirer}
+          onRetirer={setStockARetirer}
         />
       )}
 
@@ -123,6 +127,16 @@ export default function CataloguePage() {
           loading={ajouter.isPending}
         />
       </Modal>
+
+      <ConfirmDialog
+        open={!!stockARetirer}
+        onClose={() => setStockARetirer(null)}
+        onConfirm={confirmerRetrait}
+        title="Retirer le médicament"
+        description={stockARetirer && `Retirer "${stockARetirer.medicament?.designation}" de votre catalogue ?`}
+        confirmLabel="Retirer"
+        loading={retirer.isPending}
+      />
     </div>
   );
 }
