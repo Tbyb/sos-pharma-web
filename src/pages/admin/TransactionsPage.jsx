@@ -5,7 +5,7 @@ import TransactionsList from '../../components/organisms/TransactionsList';
 import StatCard from '../../components/molecules/StatCard';
 import Alert from '../../components/atoms/Alert';
 import Pagination from '../../components/atoms/Pagination';
-import { STATUTS_PAIEMENT, MODES_PAIEMENT, COULEURS } from '../../utils/constants';
+import { STATUTS_PAIEMENT, MODES_PAIEMENT } from '../../utils/constants';
 
 const FILTRES_INITIAUX = { statut: '', mode: '', date_debut: '', date_fin: '' };
 
@@ -32,8 +32,6 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-noir mb-6">Transactions</h1>
-
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les transactions.'}
@@ -45,7 +43,7 @@ export default function TransactionsPage() {
           icon={Wallet}
           label="Revenus (paiements complétés)"
           valeur={meta.total_revenus ?? '0 FCFA'}
-          couleur={COULEURS.succes}
+          variant="vert"
         />
       </div>
 
@@ -54,7 +52,7 @@ export default function TransactionsPage() {
           name="statut"
           value={filtres.statut}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         >
           <option value="">Historique (hors en attente)</option>
           {Object.entries(STATUTS_PAIEMENT).map(([value, { label }]) => (
@@ -66,7 +64,7 @@ export default function TransactionsPage() {
           name="mode"
           value={filtres.mode}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         >
           <option value="">Tous les modes</option>
           {Object.entries(MODES_PAIEMENT).map(([value, label]) => (
@@ -79,14 +77,14 @@ export default function TransactionsPage() {
           name="date_debut"
           value={filtres.date_debut}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         />
         <input
           type="date"
           name="date_fin"
           value={filtres.date_fin}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         />
       </div>
 

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import Input from '../atoms/Input';
-import Button from '../atoms/Button';
+import FormInput from '../atoms/FormInput';
 
 const LISTES = ['Liste I', 'Liste II', 'Liste III', 'Hors liste'];
 const TAUX_TVA = ['18%', '0%'];
@@ -40,29 +39,29 @@ export default function MedicamentForm({ medicament, onSubmit, onCancel, loading
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input label="Désignation" name="designation" value={form.designation} onChange={handleChange} error={errors.designation} />
-      <Input label="Code CIP" name="CIP" value={form.CIP} onChange={handleChange} error={errors.CIP} />
-      <Input label="Prix de vente (FCFA)" name="prix_de_vente" type="number" min="0" step="0.01" value={form.prix_de_vente} onChange={handleChange} error={errors.prix_de_vente} />
+      <FormInput label="Désignation" name="designation" value={form.designation} onChange={handleChange} error={errors.designation} />
+      <FormInput label="Code CIP" name="CIP" value={form.CIP} onChange={handleChange} error={errors.CIP} />
+      <FormInput label="Prix de vente (FCFA)" name="prix_de_vente" type="number" min="0" step="0.01" value={form.prix_de_vente} onChange={handleChange} error={errors.prix_de_vente} />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-noir mb-1">Liste</label>
+          <label className="block text-sm font-medium text-bleu-nuit mb-1.5">Liste</label>
           <select
             name="liste"
             value={form.liste}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+            className="w-full rounded-[8px] border border-gris-bordure px-4 py-3 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
           >
             {LISTES.map((l) => <option key={l} value={l}>{l}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-noir mb-1">TVA</label>
+          <label className="block text-sm font-medium text-bleu-nuit mb-1.5">TVA</label>
           <select
             name="TVA"
             value={form.TVA}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+            className="w-full rounded-[8px] border border-gris-bordure px-4 py-3 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
           >
             {TAUX_TVA.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -70,8 +69,20 @@ export default function MedicamentForm({ medicament, onSubmit, onCancel, loading
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="ghost" onClick={onCancel}>Annuler</Button>
-        <Button type="submit" loading={loading}>{medicament ? 'Enregistrer' : 'Ajouter'}</Button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-5 py-2.5 rounded-[6px] text-gris-doux hover:bg-blanc-casse transition-colors duration-200 text-sm font-medium"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-5 py-2.5 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors duration-200"
+        >
+          {loading ? 'Enregistrement...' : (medicament ? 'Enregistrer' : 'Ajouter')}
+        </button>
       </div>
     </form>
   );

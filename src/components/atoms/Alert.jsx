@@ -1,10 +1,10 @@
 import { AlertCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 const config = {
-  success: { icon: CheckCircle2, bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800' },
-  error: { icon: AlertCircle, bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800' },
-  warning: { icon: AlertTriangle, bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-800' },
-  info: { icon: Info, bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800' },
+  success: { icon: CheckCircle2, bg: 'bg-vert-menthe', border: 'border-vert-medical/30', text: 'text-vert-profond' },
+  error: { icon: AlertCircle, bg: 'bg-[#FEE2E2]', border: 'border-[#DC2626]/20', text: 'text-[#991B1B]' },
+  warning: { icon: AlertTriangle, bg: 'bg-[#FFF1EC]', border: 'border-orange-corail/30', text: 'text-[#9A3412]' },
+  info: { icon: Info, bg: 'bg-[#E3F2FD]', border: 'border-bleu-nuit/20', text: 'text-bleu-nuit' },
 };
 
 /**
@@ -13,7 +13,7 @@ const config = {
 export default function Alert({ variant = 'info', children, className = '' }) {
   const { icon: Icon, bg, border, text } = config[variant];
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-lg border ${bg} ${border} ${text} ${className}`}>
+    <div className={`flex items-start gap-3 p-4 rounded-[8px] border ${bg} ${border} ${text} ${className}`}>
       <Icon className="w-5 h-5 shrink-0 mt-0.5" />
       <div className="text-sm">{children}</div>
     </div>

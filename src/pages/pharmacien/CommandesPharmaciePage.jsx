@@ -75,21 +75,19 @@ export default function CommandesPharmaciePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-noir mb-6">Mes commandes</h1>
-
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les commandes.'}
         </Alert>
       )}
 
-      <div className="flex gap-1 bg-gris-clair rounded-lg p-1 mb-4 w-fit">
+      <div className="flex gap-1 bg-blanc-casse border border-gris-bordure rounded-[8px] p-1 mb-4 w-fit">
         {ONGLETS.map((o) => (
           <button
             key={o.label}
             onClick={() => changerOnglet(o.value)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md cursor-pointer transition-colors ${
-              onglet === o.value ? 'bg-white text-noir shadow-sm' : 'text-gris hover:text-noir'
+            className={`px-4 py-1.5 text-sm font-medium rounded-[6px] cursor-pointer transition-colors duration-200 ${
+              onglet === o.value ? 'bg-vert-medical text-white' : 'text-bleu-nuit hover:bg-vert-menthe'
             }`}
           >
             {o.label}
@@ -104,7 +102,7 @@ export default function CommandesPharmaciePage() {
           ))}
         </div>
       ) : !isError && !commandes.length ? (
-        <p className="text-center text-gris py-12">Aucune commande dans cette catégorie.</p>
+        <p className="text-center text-gris-doux py-16">Aucune commande dans cette catégorie.</p>
       ) : !isError ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

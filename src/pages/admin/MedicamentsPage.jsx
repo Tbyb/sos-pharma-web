@@ -8,7 +8,6 @@ import {
 import FilterBar from '../../components/molecules/FilterBar';
 import MedicamentsTable from '../../components/organisms/MedicamentsTable';
 import MedicamentForm from '../../components/molecules/MedicamentForm';
-import Button from '../../components/atoms/Button';
 import Modal from '../../components/atoms/Modal';
 import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
@@ -21,6 +20,7 @@ export default function MedicamentsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [medicamentEnEdition, setMedicamentEnEdition] = useState(null);
   const [medicamentADesactiver, setMedicamentADesactiver] = useState(null);
+  const [medicamentAReactiver, setMedicamentAReactiver] = useState(null);
 
   const { data, isLoading, isError, error } = useAdminMedicaments({ search: search || undefined, statut: statut || undefined, page });
   const creer = useCreerMedicament();
@@ -76,20 +76,24 @@ export default function MedicamentsPage() {
     });
   };
 
-  const handleReactiver = (med) => {
-    reactiver.mutate(med.id, {
+  const confirmerReactivation = () => {
+    if (!medicamentAReactiver) return;
+    reactiver.mutate(medicamentAReactiver.id, {
       onSuccess: () => toast.success('Médicament réactivé.'),
       onError: (err) => toast.error(err.response?.data?.message || 'Erreur lors de la réactivation.'),
+      onSettled: () => setMedicamentAReactiver(null),
     });
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-noir">Référentiel médicaments</h1>
-        <Button onClick={ouvrirAjout}>
+      <div className="flex items-center justify-end mb-6">
+        <button
+          onClick={ouvrirAjout}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[6px] bg-vert-medical hover:bg-vert-profond text-white text-sm font-medium transition-colors duration-200"
+        >
           <Plus className="w-4 h-4" /> Ajouter
-        </Button>
+        </button>
       </div>
 
       {isError && (
@@ -108,7 +112,7 @@ export default function MedicamentsPage() {
           isLoading={isLoading}
           onEdit={ouvrirEdition}
           onDesactiver={setMedicamentADesactiver}
-          onReactiver={handleReactiver}
+          onReactiver={setMedicamentAReactiver}
         />
       )}
 
@@ -139,6 +143,16 @@ export default function MedicamentsPage() {
         description={medicamentADesactiver && `Désactiver "${medicamentADesactiver.designation}" ? Il ne sera plus visible des patients.`}
         confirmLabel="Désactiver"
         loading={desactiver.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!medicamentAReactiver}
+        onClose={() => setMedicamentAReactiver(null)}
+        onConfirm={confirmerReactivation}
+        title="Réactiver le médicament"
+        description={medicamentAReactiver && `Réactiver "${medicamentAReactiver.designation}" ? Il redeviendra visible des patients.`}
+        confirmLabel="Réactiver"
+        loading={reactiver.isPending}
       />
     </div>
   );

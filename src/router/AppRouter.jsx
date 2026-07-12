@@ -13,8 +13,8 @@ const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
 const RegisterPharmacienPage = lazy(() => import('../pages/auth/RegisterPharmacienPage'));
 
 const HomePage = lazy(() => import('../pages/public/HomePage'));
+const MedicamentsCataloguePage = lazy(() => import('../pages/public/MedicamentsPage'));
 const MedicamentDetailPage = lazy(() => import('../pages/public/MedicamentDetailPage'));
-const ComparaisonPrixPage = lazy(() => import('../pages/public/ComparaisonPrixPage'));
 const PharmaciesMapPage = lazy(() => import('../pages/public/PharmaciesMapPage'));
 
 const PanierPage = lazy(() => import('../pages/patient/PanierPage'));
@@ -36,6 +36,7 @@ const TransactionsPage = lazy(() => import('../pages/admin/TransactionsPage'));
 const CataloguePage = lazy(() => import('../pages/pharmacien/CataloguePage'));
 const CommandesPharmaciePage = lazy(() => import('../pages/pharmacien/CommandesPharmaciePage'));
 const MaPharmaciePage = lazy(() => import('../pages/pharmacien/MaPharmaciePage'));
+const DashboardPharmacienPage = lazy(() => import('../pages/pharmacien/DashboardPage'));
 
 function ChargementPage() {
   return (
@@ -57,8 +58,9 @@ export default function AppRouter() {
         {/* Pages publiques avec PublicLayout */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/medicaments" element={<MedicamentsCataloguePage />} />
           <Route path="/medicaments/:id" element={<MedicamentDetailPage />} />
-          <Route path="/comparaison" element={<ComparaisonPrixPage />} />
+          <Route path="/comparaison" element={<Navigate to="/medicaments" replace />} />
           <Route path="/pharmacies" element={<PharmaciesMapPage />} />
 
           {/* Routes patient (connecté + layout public) */}
@@ -89,6 +91,7 @@ export default function AppRouter() {
         {/* Routes pharmacien avec PharmacienLayout */}
         <Route element={<RoleRoute role="pharmacien" />}>
           <Route element={<PharmacienLayout />}>
+            <Route path="/pharmacien/dashboard" element={<DashboardPharmacienPage />} />
             <Route path="/pharmacien/catalogue" element={<CataloguePage />} />
             <Route path="/pharmacien/commandes" element={<CommandesPharmaciePage />} />
             <Route path="/pharmacien/pharmacie" element={<MaPharmaciePage />} />

@@ -11,25 +11,25 @@ export default function PharmacieAdminCard({ pharmacie, onCertifier, onRefuser, 
   const statut = STATUTS_PHARMACIE[pharmacie.statut] || { label: pharmacie.statut, couleur: '#6B7280', fond: '#F3F4F6' };
 
   return (
-    <div className="bg-white rounded-lg shadow-card p-4">
+    <div className="bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <Link to={`/admin/pharmacies/${pharmacie.id}`} className="font-medium text-noir text-sm hover:text-bleu truncate block">
+          <Link to={`/admin/pharmacies/${pharmacie.id}`} className="font-medium text-bleu-nuit text-sm hover:text-vert-medical transition-colors duration-200 truncate block">
             {pharmacie.nomPharmacie}
           </Link>
-          <div className="flex items-center gap-1 mt-1.5 text-xs text-gris">
+          <div className="flex items-center gap-1.5 mt-1.5 text-xs text-gris-doux">
             <MapPin className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{pharmacie.addresse}</span>
           </div>
-          <div className="flex items-center gap-1 mt-1 text-xs text-gris">
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-gris-doux">
             <BadgeCheck className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">Licence {pharmacie.numLicence}</span>
+            <span className="truncate font-mono">Licence {pharmacie.numLicence}</span>
           </div>
         </div>
         <Badge couleur={statut.couleur} fond={statut.fond} className="shrink-0">{statut.label}</Badge>
       </div>
 
-      <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t">
+      <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-gris-bordure">
         <div className="flex gap-2">
           {pharmacie.statut === 'en_attente' && (
             <>
@@ -44,7 +44,7 @@ export default function PharmacieAdminCard({ pharmacie, onCertifier, onRefuser, 
             <Button size="sm" variant="secondary" onClick={() => onReactiver(pharmacie)}>Réactiver</Button>
           )}
         </div>
-        <Link to={`/admin/pharmacies/${pharmacie.id}`} className="flex items-center text-xs text-bleu hover:underline shrink-0">
+        <Link to={`/admin/pharmacies/${pharmacie.id}`} className="flex items-center text-xs text-vert-medical hover:text-vert-profond transition-colors duration-200 shrink-0">
           Détail <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>

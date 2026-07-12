@@ -1,21 +1,45 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Card from '../../components/atoms/Card';
-import Input from '../../components/atoms/Input';
-import Button from '../../components/atoms/Button';
+import FormInput from '../../components/atoms/FormInput';
 import { useAuth } from '../../contexts/AuthContext';
 import { useInscrirePharmacie } from '../../hooks/usePharmacies';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { geocoderInverse } from '../../utils/geo';
 import {
-  Building2, Mail, Lock, User, Phone, KeyRound, MapPin, BadgeCheck, Upload, LocateFixed,
+  ShieldPlus, Building2, Mail, Lock, User, Phone, KeyRound, MapPin, BadgeCheck, Upload, LocateFixed,
 } from 'lucide-react';
 
 const FORM_INITIAL = {
   nom: '', prenom: '', email: '', telephone: '', password: '', password_confirmation: '',
   nomPharmacie: '', addresse: '', numTelPharmacie: '', numLicence: '',
 };
+
+function BoutonSecondaire({ children, loading, ...props }) {
+  return (
+    <button
+      type="button"
+      disabled={loading}
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[6px] border border-vert-medical text-vert-medical hover:bg-vert-menthe transition-colors duration-200 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+function BoutonPrimaire({ children, loading, ...props }) {
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full py-3 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors duration-200"
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
 
 export default function RegisterPharmacienPage() {
   const [etape, setEtape] = useState('inscription');
@@ -115,34 +139,35 @@ export default function RegisterPharmacienPage() {
 
     try {
       await inscrirePharmacie.mutateAsync(formData);
-      navigate('/pharmacien/catalogue');
+      navigate('/pharmacien/dashboard');
     } catch (err) {
       const message = err.response?.data?.message
         || "Votre compte est confirmé, mais l'enregistrement de votre pharmacie a échoué. Complétez le formulaire ci-dessous.";
-      navigate('/pharmacien/catalogue', { state: { message } });
+      navigate('/pharmacien/dashboard', { state: { message } });
     }
   };
 
   if (etape === 'otp') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bleu-clair px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-b from-blanc-casse to-vert-menthe flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-bleu rounded-full mb-4">
-              <Building2 className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-noir">SOS-Pharma</h1>
-            <p className="text-gris mt-1">Confirmez votre compte</p>
+            <Link to="/" className="inline-flex items-center gap-2 text-vert-profond font-medium text-lg mb-6">
+              <ShieldPlus className="w-6 h-6" />
+              SOS-Pharma
+            </Link>
+            <h1 className="font-display text-3xl text-bleu-nuit mb-1">Confirmez votre compte</h1>
+            <p className="text-gris-doux text-sm">Dernière étape avant de créer votre pharmacie</p>
           </div>
 
-          <Card>
+          <div className="bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] p-8">
             <form onSubmit={handleSubmitOtp} className="space-y-4">
-              <p className="text-sm text-gris">
-                Un code à 6 chiffres a été envoyé à <span className="font-medium text-noir">{form.email}</span>.
+              <p className="text-sm text-gris-doux">
+                Un code à 6 chiffres a été envoyé à <span className="font-medium text-bleu-nuit">{form.email}</span>.
                 Entrez-le ci-dessous pour confirmer votre compte et finaliser l'inscription de votre pharmacie.
               </p>
 
-              <Input
+              <FormInput
                 label="Code de confirmation"
                 placeholder="123456"
                 value={otp}
@@ -153,94 +178,96 @@ export default function RegisterPharmacienPage() {
                 required
               />
 
-              <Button type="submit" loading={loading} className="w-full" disabled={otp.length !== 6}>
-                Confirmer et créer ma pharmacie
-              </Button>
+              <BoutonPrimaire loading={loading || otp.length !== 6}>
+                {loading ? 'Confirmation...' : 'Confirmer et créer ma pharmacie'}
+              </BoutonPrimaire>
             </form>
-          </Card>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bleu-clair px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-blanc-casse to-vert-menthe flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-bleu rounded-full mb-4">
-            <Building2 className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-noir">SOS-Pharma</h1>
-          <p className="text-gris mt-1">Créer votre compte pharmacie</p>
+          <Link to="/" className="inline-flex items-center gap-2 text-vert-profond font-medium text-lg mb-6">
+            <ShieldPlus className="w-6 h-6" />
+            SOS-Pharma
+          </Link>
+          <h1 className="font-display text-3xl text-bleu-nuit mb-1">Créer votre compte pharmacie</h1>
+          <p className="text-gris-doux text-sm">Rejoignez le réseau de pharmacies certifiées SOS-Pharma</p>
         </div>
 
-        <Card>
+        <div className="bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] p-8">
           <form onSubmit={handleSubmitInscription} className="space-y-6">
             <div>
-              <h2 className="font-semibold text-noir mb-3">Vos informations (responsable)</h2>
+              <h2 className="font-medium text-bleu-nuit mb-3">Vos informations (responsable)</h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <Input label="Nom" value={form.nom} onChange={handleChange('nom')} error={errors.nom} icon={<User className="w-4 h-4" />} required />
-                  <Input label="Prénom" value={form.prenom} onChange={handleChange('prenom')} error={errors.prenom} icon={<User className="w-4 h-4" />} required />
+                  <FormInput label="Nom" value={form.nom} onChange={handleChange('nom')} error={errors.nom} icon={<User className="w-4 h-4" />} required />
+                  <FormInput label="Prénom" value={form.prenom} onChange={handleChange('prenom')} error={errors.prenom} icon={<User className="w-4 h-4" />} required />
                 </div>
-                <Input label="Email" type="email" value={form.email} onChange={handleChange('email')} error={errors.email} icon={<Mail className="w-4 h-4" />} required />
-                <Input label="Téléphone personnel" type="tel" value={form.telephone} onChange={handleChange('telephone')} error={errors.telephone} icon={<Phone className="w-4 h-4" />} required />
+                <FormInput label="Email" type="email" value={form.email} onChange={handleChange('email')} error={errors.email} icon={<Mail className="w-4 h-4" />} required />
+                <FormInput label="Téléphone personnel" type="tel" value={form.telephone} onChange={handleChange('telephone')} error={errors.telephone} icon={<Phone className="w-4 h-4" />} required />
                 <div className="grid grid-cols-2 gap-3">
-                  <Input label="Mot de passe" type="password" value={form.password} onChange={handleChange('password')} error={errors.password} icon={<Lock className="w-4 h-4" />} required />
-                  <Input label="Confirmer" type="password" value={form.password_confirmation} onChange={handleChange('password_confirmation')} error={errors.password_confirmation} icon={<Lock className="w-4 h-4" />} required />
+                  <FormInput label="Mot de passe" type="password" value={form.password} onChange={handleChange('password')} error={errors.password} icon={<Lock className="w-4 h-4" />} required />
+                  <FormInput label="Confirmer" type="password" value={form.password_confirmation} onChange={handleChange('password_confirmation')} error={errors.password_confirmation} icon={<Lock className="w-4 h-4" />} required />
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t">
-              <h2 className="font-semibold text-noir mb-3">Informations de la pharmacie</h2>
+            <div className="pt-6 border-t border-gris-bordure">
+              <h2 className="font-medium text-bleu-nuit mb-3">Informations de la pharmacie</h2>
               <div className="space-y-4">
-                <Input label="Nom de la pharmacie" value={form.nomPharmacie} onChange={handleChange('nomPharmacie')} error={errors.nomPharmacie} icon={<Building2 className="w-4 h-4" />} required />
-                <Input label="Adresse" value={form.addresse} onChange={handleChange('addresse')} error={errors.addresse} icon={<MapPin className="w-4 h-4" />} required />
+                <FormInput label="Nom de la pharmacie" value={form.nomPharmacie} onChange={handleChange('nomPharmacie')} error={errors.nomPharmacie} icon={<Building2 className="w-4 h-4" />} required />
+                <FormInput label="Adresse" value={form.addresse} onChange={handleChange('addresse')} error={errors.addresse} icon={<MapPin className="w-4 h-4" />} required />
 
                 <div>
-                  <Button type="button" variant="outline" size="sm" onClick={handleDemanderPosition} loading={statutGeoloc === 'chargement' || chargementAdresse}>
-                    <LocateFixed className="w-3.5 h-3.5" /> Utiliser ma position actuelle
-                  </Button>
+                  <BoutonSecondaire onClick={handleDemanderPosition} loading={statutGeoloc === 'chargement' || chargementAdresse}>
+                    <LocateFixed className="w-3.5 h-3.5" />
+                    {statutGeoloc === 'chargement' || chargementAdresse ? 'Localisation...' : 'Utiliser ma position actuelle'}
+                  </BoutonSecondaire>
                   {coords && (
-                    <p className="text-xs text-vert mt-1">Position enregistrée ({coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)})</p>
+                    <p className="text-xs text-vert-medical mt-1.5">Position enregistrée ({coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)})</p>
                   )}
                   {statutGeoloc === 'refuse' && (
-                    <p className="text-xs text-danger mt-1">Localisation refusée ou indisponible.</p>
+                    <p className="text-xs text-danger mt-1.5">Localisation refusée ou indisponible.</p>
                   )}
                 </div>
 
-                <Input label="Téléphone de la pharmacie" type="tel" value={form.numTelPharmacie} onChange={handleChange('numTelPharmacie')} error={errors.numTel} icon={<Phone className="w-4 h-4" />} required />
-                <Input label="Numéro de licence" value={form.numLicence} onChange={handleChange('numLicence')} error={errors.numLicence} icon={<BadgeCheck className="w-4 h-4" />} required />
+                <FormInput label="Téléphone de la pharmacie" type="tel" value={form.numTelPharmacie} onChange={handleChange('numTelPharmacie')} error={errors.numTel} icon={<Phone className="w-4 h-4" />} required />
+                <FormInput label="Numéro de licence" value={form.numLicence} onChange={handleChange('numLicence')} error={errors.numLicence} icon={<BadgeCheck className="w-4 h-4" />} required />
 
                 <div>
-                  <label className="block text-sm font-medium text-noir mb-1">Document officiel (licence, PDF/JPG/PNG)</label>
-                  <label className="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-3 py-2 text-sm text-gris cursor-pointer hover:border-bleu">
+                  <label className="block text-sm font-medium text-bleu-nuit mb-1.5">Document officiel (licence, PDF/JPG/PNG)</label>
+                  <label className="flex items-center gap-2 border border-dashed border-gris-bordure rounded-[8px] px-4 py-3 text-sm text-gris-doux cursor-pointer hover:border-vert-medical transition-colors duration-200">
                     <Upload className="w-4 h-4" />
                     {document ? document.name : 'Choisir un fichier'}
                     <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => setDocument(e.target.files?.[0] || null)} />
                   </label>
-                  {errors.documentUpload && <p className="mt-1 text-xs text-danger">{errors.documentUpload}</p>}
+                  {errors.documentUpload && <p className="mt-1.5 text-xs text-danger">{errors.documentUpload}</p>}
                 </div>
               </div>
             </div>
 
-            <p className="text-xs text-gris">
+            <p className="text-xs text-gris-doux">
               Votre compte sera en attente de certification par notre équipe après confirmation par code OTP.
             </p>
 
-            <Button type="submit" loading={loading} className="w-full justify-center">
-              Créer mon compte pharmacie
-            </Button>
+            <BoutonPrimaire loading={loading}>
+              {loading ? 'Création...' : 'Créer mon compte pharmacie'}
+            </BoutonPrimaire>
           </form>
 
-          <p className="text-center text-sm text-gris mt-4">
+          <p className="text-center text-sm text-gris-doux mt-6">
             Déjà un compte ?{' '}
-            <Link to="/login" className="text-bleu font-medium hover:underline">
+            <Link to="/login" className="text-vert-medical font-medium hover:text-vert-profond transition-colors duration-200">
               Se connecter
             </Link>
           </p>
-        </Card>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useCommandeDetail, useModifierCommande } from '../../hooks/useCommandes';
 import Button from '../../components/atoms/Button';
 import Card from '../../components/atoms/Card';
-import Input from '../../components/atoms/Input';
+import FormInput from '../../components/atoms/FormInput';
 import Spinner from '../../components/atoms/Spinner';
 import { formatMontant } from '../../utils/formatters';
 import { ArrowLeft, MapPin, Truck, Store, Minus, Plus, Trash2 } from 'lucide-react';
@@ -53,7 +53,7 @@ export default function ModifierCommandePage() {
   }
 
   if (!commande) {
-    return <div className="text-center py-20 text-gris">Commande introuvable.</div>;
+    return <div className="text-center py-20 text-gris-doux">Commande introuvable.</div>;
   }
 
   const statutKey = commande.statut_commande || commande.statut;
@@ -108,109 +108,111 @@ export default function ModifierCommandePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <Link to={`/patient/commandes/${id}`} className="inline-flex items-center gap-1 text-sm text-bleu hover:underline mb-4">
-        <ArrowLeft className="w-4 h-4" />
-        Retour au détail
-      </Link>
+    <div className="min-h-screen bg-blanc-casse">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <Link to={`/patient/commandes/${id}`} className="inline-flex items-center gap-1 text-sm text-vert-medical hover:text-vert-profond transition-colors duration-200 mb-4">
+          <ArrowLeft className="w-4 h-4" />
+          Retour au détail
+        </Link>
 
-      <h1 className="text-2xl font-bold text-noir mb-6">Modifier la commande #{id}</h1>
+        <h1 className="font-display text-2xl text-bleu-nuit mb-6">Modifier la commande #{id}</h1>
 
-      <Card className="mb-4">
-        <h2 className="font-semibold text-noir mb-4">Articles</h2>
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <div key={index} className="flex items-center gap-3 py-3 border-b last:border-0">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-noir text-sm truncate">{item.designation}</p>
-                <p className="text-xs text-gris">{formatMontant(item.prix_unitaire)} / unité</p>
-              </div>
-              <div className="flex items-center gap-2">
+        <Card className="mb-4">
+          <h2 className="font-medium text-bleu-nuit mb-4">Articles</h2>
+          <div className="space-y-3">
+            {items.map((item, index) => (
+              <div key={index} className="flex items-center gap-3 py-3 border-b border-gris-bordure last:border-0">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-bleu-nuit text-sm truncate">{item.designation}</p>
+                  <p className="text-xs text-gris-doux font-mono">{formatMontant(item.prix_unitaire)} / unité</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => modifierQuantite(index, -1)}
+                    className="w-7 h-7 rounded-full border border-gris-bordure flex items-center justify-center hover:border-vert-medical hover:text-vert-medical transition-colors duration-200 cursor-pointer"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="w-8 text-center text-sm font-medium font-mono text-bleu-nuit">{item.quantite}</span>
+                  <button
+                    onClick={() => modifierQuantite(index, 1)}
+                    className="w-7 h-7 rounded-full border border-gris-bordure flex items-center justify-center hover:border-vert-medical hover:text-vert-medical transition-colors duration-200 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <p className="font-mono font-medium text-bleu-nuit text-sm w-24 text-right">
+                  {formatMontant(item.prix_unitaire * item.quantite)}
+                </p>
                 <button
-                  onClick={() => modifierQuantite(index, -1)}
-                  className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 cursor-pointer"
+                  onClick={() => retirerItem(index)}
+                  className="text-danger hover:text-[#B91C1C] transition-colors duration-200 cursor-pointer"
                 >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center text-sm font-medium">{item.quantite}</span>
-                <button
-                  onClick={() => modifierQuantite(index, 1)}
-                  className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
-              <p className="font-semibold text-noir text-sm w-24 text-right">
-                {formatMontant(item.prix_unitaire * item.quantite)}
-              </p>
-              <button
-                onClick={() => retirerItem(index)}
-                className="text-danger hover:text-red-700 cursor-pointer"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="border-t pt-3 mt-3 flex justify-between">
-          <span className="font-semibold text-noir">Total</span>
-          <span className="font-bold text-noir">{formatMontant(total)}</span>
-        </div>
-      </Card>
-
-      <Card className="mb-6">
-        <h2 className="font-semibold text-noir mb-4">Mode de récupération</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setMode('retrait')}
-            className={`p-4 rounded-lg border-2 text-center cursor-pointer transition-colors ${
-              mode === 'retrait' ? 'border-vert bg-vert-clair' : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <Store className={`w-6 h-6 mx-auto mb-2 ${mode === 'retrait' ? 'text-vert' : 'text-gris'}`} />
-            <p className="text-sm font-medium">Retrait en pharmacie</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('livraison')}
-            className={`p-4 rounded-lg border-2 text-center cursor-pointer transition-colors ${
-              mode === 'livraison' ? 'border-vert bg-vert-clair' : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <Truck className={`w-6 h-6 mx-auto mb-2 ${mode === 'livraison' ? 'text-vert' : 'text-gris'}`} />
-            <p className="text-sm font-medium">Livraison à domicile</p>
-          </button>
-        </div>
-
-        {mode === 'livraison' && (
-          <div className="mt-4">
-            <Input
-              label="Adresse de livraison"
-              value={adresse}
-              onChange={(e) => setAdresse(e.target.value)}
-              placeholder="Ex: Dakar, Médina, Rue 12..."
-              icon={<MapPin className="w-4 h-4" />}
-            />
+            ))}
           </div>
-        )}
-      </Card>
+          <div className="border-t border-gris-bordure pt-3 mt-3 flex justify-between">
+            <span className="font-medium text-bleu-nuit">Total</span>
+            <span className="font-mono font-bold text-bleu-nuit">{formatMontant(total)}</span>
+          </div>
+        </Card>
 
-      <div className="flex gap-3">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(`/patient/commandes/${id}`)}
-          className="flex-1 justify-center"
-        >
-          Annuler
-        </Button>
-        <Button
-          onClick={handleSauvegarder}
-          loading={modifierCommande.isPending}
-          className="flex-1 justify-center"
-        >
-          Sauvegarder les modifications
-        </Button>
+        <Card className="mb-6">
+          <h2 className="font-medium text-bleu-nuit mb-4">Mode de récupération</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setMode('retrait')}
+              className={`p-4 rounded-[8px] border-2 text-center cursor-pointer transition-colors duration-200 ${
+                mode === 'retrait' ? 'border-vert-medical bg-vert-menthe' : 'border-gris-bordure hover:border-vert-medical/50'
+              }`}
+            >
+              <Store className={`w-6 h-6 mx-auto mb-2 ${mode === 'retrait' ? 'text-vert-medical' : 'text-gris-doux'}`} />
+              <p className="text-sm font-medium text-bleu-nuit">Retrait en pharmacie</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('livraison')}
+              className={`p-4 rounded-[8px] border-2 text-center cursor-pointer transition-colors duration-200 ${
+                mode === 'livraison' ? 'border-vert-medical bg-vert-menthe' : 'border-gris-bordure hover:border-vert-medical/50'
+              }`}
+            >
+              <Truck className={`w-6 h-6 mx-auto mb-2 ${mode === 'livraison' ? 'text-vert-medical' : 'text-gris-doux'}`} />
+              <p className="text-sm font-medium text-bleu-nuit">Livraison à domicile</p>
+            </button>
+          </div>
+
+          {mode === 'livraison' && (
+            <div className="mt-4">
+              <FormInput
+                label="Adresse de livraison"
+                value={adresse}
+                onChange={(e) => setAdresse(e.target.value)}
+                placeholder="Ex: Dakar, Médina, Rue 12..."
+                icon={<MapPin className="w-4 h-4" />}
+              />
+            </div>
+          )}
+        </Card>
+
+        <div className="flex gap-3">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`/patient/commandes/${id}`)}
+            className="flex-1 justify-center"
+          >
+            Annuler
+          </Button>
+          <Button
+            onClick={handleSauvegarder}
+            loading={modifierCommande.isPending}
+            className="flex-1 justify-center"
+          >
+            Sauvegarder les modifications
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import { Loader2 } from 'lucide-react';
 
 const variants = {
-  primary: 'bg-bleu text-white hover:bg-bleu-fonce',
-  secondary: 'bg-vert text-white hover:bg-vert-fonce',
-  danger: 'bg-danger text-white hover:bg-red-700',
-  ghost: 'bg-transparent text-gris hover:bg-gris-clair',
-  outline: 'border border-bleu text-bleu hover:bg-bleu-clair',
+  primary: 'bg-vert-medical text-white hover:bg-vert-profond',
+  secondary: 'border border-vert-medical text-vert-medical hover:bg-vert-menthe',
+  outline: 'border border-vert-medical text-vert-medical hover:bg-vert-menthe',
+  danger: 'bg-danger text-white hover:bg-[#B91C1C]',
+  ghost: 'bg-transparent text-gris-doux hover:bg-vert-menthe hover:text-bleu-nuit',
 };
 
 const sizes = {
@@ -20,7 +20,7 @@ const sizes = {
 export default function Button({ variant = 'primary', size = 'md', loading = false, children, className = '', disabled, ...props }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-[6px] font-medium transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

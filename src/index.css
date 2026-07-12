@@ -13,8 +13,22 @@
   --color-danger: #DC2626;
   --color-warning: #D97706;
   --color-succes: #16A34A;
+
+  /* Palette DESIGN.md — introduite page par page, coexiste avec les tokens
+     ci-dessus tant que toutes les pages n'ont pas ete migrees. */
+  --color-vert-profond: #0A5C36;
+  --color-vert-medical: #12A05C;
+  --color-vert-menthe: #E8F5EE;
+  --color-bleu-nuit: #1A3A5C;
+  --color-blanc-casse: #F7FAFC;
+  --color-orange-corail: #FF6B35;
+  --color-gris-doux: #6B7280;
+  --color-gris-bordure: #E5E7EB;
+
   --font-sans: "Inter", system-ui, sans-serif;
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --font-display: "DM Serif Display", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
 }
 
 body {
@@ -38,4 +52,30 @@ body {
 @keyframes scale-in {
   from { opacity: 0; transform: scale(0.95) translateY(4px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Skeleton loader shimmer (DESIGN.md — animation autorisee) */
+@keyframes shimmer {
+  0% { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+.skeleton-shimmer {
+  background-image: linear-gradient(90deg, #E5E7EB 25%, #EEF0F2 37%, #E5E7EB 63%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Element signature DESIGN.md : "pouls de disponibilite" */
+@keyframes pulse-medical {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+.disponible-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #12A05C;
+  animation: pulse-medical 2s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 6px;
 }

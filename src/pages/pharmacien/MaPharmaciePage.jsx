@@ -4,7 +4,7 @@ import { MapPin, Phone, BadgeCheck } from 'lucide-react';
 import { useMaPharmacie, useModifierMaPharmacie } from '../../hooks/usePharmacies';
 import Card from '../../components/atoms/Card';
 import Badge from '../../components/atoms/Badge';
-import Input from '../../components/atoms/Input';
+import FormInput from '../../components/atoms/FormInput';
 import Button from '../../components/atoms/Button';
 import Alert from '../../components/atoms/Alert';
 import Skeleton from '../../components/atoms/Skeleton';
@@ -33,7 +33,6 @@ export default function MaPharmaciePage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-noir mb-6">Ma pharmacie</h1>
       <InfosPharmacie pharmacie={pharmacie} />
     </div>
   );
@@ -65,14 +64,14 @@ function InfosPharmacie({ pharmacie }) {
       <Card className="mb-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-semibold text-noir">{pharmacie.nomPharmacie}</h2>
-            <div className="flex items-center gap-1 mt-2 text-sm text-gris">
+            <h2 className="font-medium text-bleu-nuit">{pharmacie.nomPharmacie}</h2>
+            <div className="flex items-center gap-1.5 mt-2 text-sm text-gris-doux">
               <MapPin className="w-4 h-4" /> {pharmacie.addresse}
             </div>
-            <div className="flex items-center gap-1 mt-1 text-sm text-gris">
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-gris-doux font-mono">
               <Phone className="w-4 h-4" /> {pharmacie.numTel}
             </div>
-            <div className="flex items-center gap-1 mt-1 text-sm text-gris">
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-gris-doux font-mono">
               <BadgeCheck className="w-4 h-4" /> Licence {pharmacie.numLicence}
             </div>
           </div>
@@ -81,14 +80,14 @@ function InfosPharmacie({ pharmacie }) {
       </Card>
 
       <Card>
-        <h2 className="font-semibold text-noir mb-4">Modifier les informations</h2>
+        <h2 className="font-medium text-bleu-nuit mb-4">Modifier les informations</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Nom de la pharmacie" name="nomPharmacie" value={form.nomPharmacie} onChange={handleChange} />
-          <Input label="Adresse" name="addresse" value={form.addresse} onChange={handleChange} />
-          <Input label="Téléphone" name="numTel" value={form.numTel} onChange={handleChange} />
+          <FormInput label="Nom de la pharmacie" name="nomPharmacie" value={form.nomPharmacie} onChange={handleChange} />
+          <FormInput label="Adresse" name="addresse" value={form.addresse} onChange={handleChange} />
+          <FormInput label="Téléphone" name="numTel" value={form.numTel} onChange={handleChange} />
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Latitude" name="latitude" type="number" step="any" value={form.latitude} onChange={handleChange} />
-            <Input label="Longitude" name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} />
+            <FormInput label="Latitude" name="latitude" type="number" step="any" value={form.latitude} onChange={handleChange} />
+            <FormInput label="Longitude" name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} />
           </div>
           <Button type="submit" loading={modifier.isPending} className="w-full justify-center">
             Enregistrer les modifications

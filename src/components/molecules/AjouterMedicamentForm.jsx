@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useReferentielPharmacien } from '../../hooks/useMedicaments';
 import SearchBar from './SearchBar';
-import Input from '../atoms/Input';
+import FormInput from '../atoms/FormInput';
 import Button from '../atoms/Button';
 import Skeleton from '../atoms/Skeleton';
 
@@ -21,14 +21,14 @@ export default function AjouterMedicamentForm({ onSubmit, onCancel, loading }) {
 
   return (
     <div>
-      <div className="flex gap-1 bg-gris-clair rounded-lg p-1 mb-4">
+      <div className="flex gap-1 bg-blanc-casse border border-gris-bordure rounded-[8px] p-1 mb-4">
         {MODES.map((m) => (
           <button
             key={m.value}
             type="button"
             onClick={() => setMode(m.value)}
-            className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer transition-colors ${
-              mode === m.value ? 'bg-white text-noir shadow-sm' : 'text-gris hover:text-noir'
+            className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-[6px] cursor-pointer transition-colors duration-200 ${
+              mode === m.value ? 'bg-vert-medical text-white' : 'text-bleu-nuit hover:bg-vert-menthe'
             }`}
           >
             {m.label}
@@ -62,14 +62,14 @@ function RechercheReferentiel({ onSubmit, onCancel, loading }) {
   if (selected) {
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="p-3 bg-gris-clair rounded-lg flex items-center justify-between">
+        <div className="p-3 bg-blanc-casse rounded-[8px] flex items-center justify-between">
           <div>
-            <p className="font-medium text-noir text-sm">{selected.designation}</p>
-            <p className="text-xs text-gris">CIP {selected.CIP}</p>
+            <p className="font-medium text-bleu-nuit text-sm">{selected.designation}</p>
+            <p className="text-xs text-gris-doux font-mono">CIP {selected.CIP}</p>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(null)}>Changer</Button>
         </div>
-        <Input
+        <FormInput
           label="Quantité"
           type="number"
           min="1"
@@ -77,7 +77,7 @@ function RechercheReferentiel({ onSubmit, onCancel, loading }) {
           onChange={(e) => setForm((f) => ({ ...f, quantite: e.target.value }))}
           required
         />
-        <Input
+        <FormInput
           label="Prix unitaire (FCFA)"
           type="number"
           min="0"
@@ -107,15 +107,15 @@ function RechercheReferentiel({ onSubmit, onCancel, loading }) {
             <button
               key={med.id}
               onClick={() => setSelected(med)}
-              className="w-full text-left p-3 rounded-lg hover:bg-gris-clair transition-colors cursor-pointer"
+              className="w-full text-left p-3 rounded-[8px] hover:bg-vert-menthe transition-colors duration-200 cursor-pointer"
             >
-              <p className="font-medium text-noir text-sm">{med.designation}</p>
-              <p className="text-xs text-gris">CIP {med.CIP} • {med.liste}</p>
+              <p className="font-medium text-bleu-nuit text-sm">{med.designation}</p>
+              <p className="text-xs text-gris-doux font-mono">CIP {med.CIP} • {med.liste}</p>
             </button>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gris text-center py-6">Aucun médicament trouvé. Essayez « Nouveau médicament » si vous ne le trouvez pas dans le référentiel.</p>
+        <p className="text-sm text-gris-doux text-center py-6">Aucun médicament trouvé. Essayez « Nouveau médicament » si vous ne le trouvez pas dans le référentiel.</p>
       )}
     </div>
   );
@@ -136,30 +136,30 @@ function NouveauMedicament({ onSubmit, onCancel, loading }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <p className="text-xs text-gris -mt-1">Ce médicament sera ajouté au référentiel général, puis à votre catalogue.</p>
-      <Input label="Désignation" name="designation" value={form.designation} onChange={handleChange} required />
-      <Input label="Code CIP" name="CIP" value={form.CIP} onChange={handleChange} required />
-      <Input label="Prix de vente référentiel (FCFA)" name="prix_de_vente" type="number" min="0" step="0.01" value={form.prix_de_vente} onChange={handleChange} required />
+      <p className="text-xs text-gris-doux -mt-1">Ce médicament sera ajouté au référentiel général, puis à votre catalogue.</p>
+      <FormInput label="Désignation" name="designation" value={form.designation} onChange={handleChange} required />
+      <FormInput label="Code CIP" name="CIP" value={form.CIP} onChange={handleChange} required />
+      <FormInput label="Prix de vente référentiel (FCFA)" name="prix_de_vente" type="number" min="0" step="0.01" value={form.prix_de_vente} onChange={handleChange} required />
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-noir mb-1">Liste</label>
+          <label className="block text-sm font-medium text-bleu-nuit mb-1.5">Liste</label>
           <select
             name="liste"
             value={form.liste}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+            className="w-full rounded-[8px] border border-gris-bordure px-4 py-3 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
           >
             {LISTES.map((l) => <option key={l} value={l}>{l}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-noir mb-1">TVA</label>
+          <label className="block text-sm font-medium text-bleu-nuit mb-1.5">TVA</label>
           <select
             name="TVA"
             value={form.TVA}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+            className="w-full rounded-[8px] border border-gris-bordure px-4 py-3 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
           >
             {TAUX_TVA.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -167,8 +167,8 @@ function NouveauMedicament({ onSubmit, onCancel, loading }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Quantité en stock" name="quantite" type="number" min="1" value={form.quantite} onChange={handleChange} required />
-        <Input label="Prix unitaire de vente (FCFA)" name="prix_unitaire" type="number" min="0" step="0.01" value={form.prix_unitaire} onChange={handleChange} required />
+        <FormInput label="Quantité en stock" name="quantite" type="number" min="1" value={form.quantite} onChange={handleChange} required />
+        <FormInput label="Prix unitaire de vente (FCFA)" name="prix_unitaire" type="number" min="0" step="0.01" value={form.prix_unitaire} onChange={handleChange} required />
       </div>
 
       <div className="flex justify-end gap-2 pt-2">

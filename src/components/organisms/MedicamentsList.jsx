@@ -10,14 +10,14 @@ export default function MedicamentsList({ medicaments = [], isLoading, currentPa
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} variant="card" height="100px" />
+          <Skeleton key={i} variant="card" height="140px" />
         ))}
       </div>
     );
   }
 
   if (!medicaments.length) {
-    return <p className="text-gris text-center py-12">Aucun médicament trouvé.</p>;
+    return <p className="text-gris-doux text-center py-16">Aucun médicament trouvé pour votre recherche</p>;
   }
 
   return (
@@ -29,7 +29,7 @@ export default function MedicamentsList({ medicaments = [], isLoading, currentPa
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-8">
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
         </div>
       )}

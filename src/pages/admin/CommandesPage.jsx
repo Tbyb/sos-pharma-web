@@ -38,8 +38,6 @@ export default function CommandesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-noir mb-6">Commandes</h1>
-
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les commandes.'}
@@ -51,7 +49,7 @@ export default function CommandesPage() {
           name="statut"
           value={filtres.statut}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         >
           <option value="">Tous les statuts</option>
           {Object.entries(STATUTS_COMMANDE).map(([value, { label }]) => (
@@ -63,7 +61,7 @@ export default function CommandesPage() {
           name="idPharmacie"
           value={filtres.idPharmacie}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         >
           <option value="">Toutes les pharmacies</option>
           {pharmacies.map((p) => (
@@ -76,14 +74,14 @@ export default function CommandesPage() {
           name="date_debut"
           value={filtres.date_debut}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         />
         <input
           type="date"
           name="date_fin"
           value={filtres.date_fin}
           onChange={handleFiltreChange}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+          className="rounded-[6px] border border-gris-bordure px-3 py-2 text-sm text-bleu-nuit outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
         />
       </div>
 

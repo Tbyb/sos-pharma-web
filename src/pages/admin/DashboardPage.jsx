@@ -11,7 +11,6 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-noir mb-6">Dashboard</h1>
       <DashboardStats stats={data?.data || {}} isLoading={isLoading} />
     </div>
   );

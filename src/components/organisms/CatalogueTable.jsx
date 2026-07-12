@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Pencil, Trash2, Check, X } from 'lucide-react';
+import { Pencil, Trash2, Check, X, AlertTriangle, TriangleAlert } from 'lucide-react';
 import Skeleton from '../atoms/Skeleton';
-import Button from '../atoms/Button';
 import { formatMontant } from '../../utils/formatters';
+
+function niveauStock(quantite) {
+  if (quantite <= 5) return 'critique';
+  if (quantite <= 20) return 'faible';
+  return null;
+}
 
 /**
  * @param {{ catalogue: Array, isLoading: boolean, onToggleDisponibilite: (s: object) => void, onModifier: (id: number, data: object) => void, onRetirer: (s: object) => void }} props
@@ -22,7 +27,7 @@ export default function CatalogueTable({ catalogue = [], isLoading, onToggleDisp
   }
 
   if (!catalogue.length) {
-    return <p className="text-center text-gris py-12">Votre catalogue est vide. Ajoutez un médicament depuis le référentiel.</p>;
+    return <p className="text-center text-gris-doux py-16">Votre catalogue est vide. Ajoutez un médicament depuis le référentiel.</p>;
   }
 
   const startEdit = (stock) => {
@@ -38,24 +43,31 @@ export default function CatalogueTable({ catalogue = [], isLoading, onToggleDisp
   };
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow-card">
+    <div className="overflow-x-auto bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)]">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-left text-gris border-b">
-            <th className="py-3 px-4 font-medium">Médicament</th>
-            <th className="py-3 px-4 font-medium">Prix</th>
-            <th className="py-3 px-4 font-medium">Quantité</th>
-            <th className="py-3 px-4 font-medium">Disponible</th>
-            <th className="py-3 px-4 font-medium text-right">Actions</th>
+          <tr className="text-left bg-blanc-casse">
+            <th className="py-3 px-4 font-semibold text-gris-doux text-xs uppercase tracking-wide">Médicament</th>
+            <th className="py-3 px-4 font-semibold text-gris-doux text-xs uppercase tracking-wide">Prix</th>
+            <th className="py-3 px-4 font-semibold text-gris-doux text-xs uppercase tracking-wide">Quantité</th>
+            <th className="py-3 px-4 font-semibold text-gris-doux text-xs uppercase tracking-wide">Disponible</th>
+            <th className="py-3 px-4 font-semibold text-gris-doux text-xs uppercase tracking-wide text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           {catalogue.map((stock) => {
             const enEdition = editingId === stock.id;
+            const niveau = niveauStock(Number(stock.quantite));
+            const critique = niveau === 'critique';
             return (
-              <tr key={stock.id} className="border-b last:border-0 hover:bg-gris-clair/50">
-                <td className="py-2.5 px-4 font-medium text-noir">{stock.medicament?.designation}</td>
-                <td className="py-2.5 px-4">
+              <tr
+                key={stock.id}
+                className={`border-t border-gris-bordure hover:bg-blanc-casse transition-colors duration-200 ${
+                  niveau ? `border-l-[3px] ${critique ? 'border-l-danger' : 'border-l-orange-corail'}` : ''
+                }`}
+              >
+                <td className="py-2.5 px-4 font-medium text-bleu-nuit">{stock.medicament?.designation}</td>
+                <td className="py-2.5 px-4 font-mono text-bleu-nuit">
                   {enEdition ? (
                     <input
                       type="number"
@@ -63,52 +75,68 @@ export default function CatalogueTable({ catalogue = [], isLoading, onToggleDisp
                       step="0.01"
                       value={form.prix_unitaire}
                       onChange={(e) => setForm((f) => ({ ...f, prix_unitaire: e.target.value }))}
-                      className="w-24 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+                      className="w-24 rounded-[6px] border border-gris-bordure px-2 py-1 text-sm font-mono outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
                     />
                   ) : (
                     formatMontant(stock.prix_unitaire)
                   )}
                 </td>
-                <td className="py-2.5 px-4">
+                <td className="py-2.5 px-4 font-mono text-bleu-nuit">
                   {enEdition ? (
                     <input
                       type="number"
                       min="0"
                       value={form.quantite}
                       onChange={(e) => setForm((f) => ({ ...f, quantite: e.target.value }))}
-                      className="w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
+                      className="w-20 rounded-[6px] border border-gris-bordure px-2 py-1 text-sm font-mono outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
                     />
                   ) : (
-                    stock.quantite
+                    <span className="flex items-center gap-1.5">
+                      {stock.quantite}
+                      {niveau && (
+                        <span
+                          title={critique ? 'Rupture critique' : 'Stock faible'}
+                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] text-[11px] font-sans font-medium ${
+                            critique ? 'bg-[#FEE2E2] text-danger' : 'bg-[#FFF0E9] text-orange-corail'
+                          }`}
+                        >
+                          {critique ? <AlertTriangle className="w-3 h-3" /> : <TriangleAlert className="w-3 h-3" />}
+                          {critique ? 'Rupture' : 'Faible'}
+                        </span>
+                      )}
+                    </span>
                   )}
                 </td>
                 <td className="py-2.5 px-4">
                   <button
                     onClick={() => onToggleDisponibilite(stock)}
-                    className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${stock.disponible ? 'bg-vert' : 'bg-gray-300'}`}
+                    title={stock.disponible ? 'Disponible' : 'Indisponible'}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer ${stock.disponible ? 'bg-vert-medical' : 'bg-gris-bordure'}`}
                   >
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${stock.disponible ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.25)] transition-transform duration-200 flex items-center justify-center ${stock.disponible ? 'translate-x-[22px]' : 'translate-x-0.5'}`}>
+                      {stock.disponible && <Check className="w-3 h-3 text-vert-medical" strokeWidth={3} />}
+                    </span>
                   </button>
                 </td>
                 <td className="py-2.5 px-4">
                   <div className="flex justify-end gap-1">
                     {enEdition ? (
                       <>
-                        <Button variant="ghost" size="sm" onClick={() => saveEdit(stock.id)} title="Enregistrer">
-                          <Check className="w-4 h-4 text-succes" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={cancelEdit} title="Annuler">
-                          <X className="w-4 h-4 text-gris" />
-                        </Button>
+                        <button onClick={() => saveEdit(stock.id)} title="Enregistrer" className="p-1.5 text-gris-doux hover:text-vert-medical transition-colors duration-200 cursor-pointer">
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button onClick={cancelEdit} title="Annuler" className="p-1.5 text-gris-doux hover:text-bleu-nuit transition-colors duration-200 cursor-pointer">
+                          <X className="w-4 h-4" />
+                        </button>
                       </>
                     ) : (
-                      <Button variant="ghost" size="sm" onClick={() => startEdit(stock)} title="Modifier prix/quantité">
+                      <button onClick={() => startEdit(stock)} title="Modifier prix/quantité" className="p-1.5 text-gris-doux hover:text-vert-medical transition-colors duration-200 cursor-pointer">
                         <Pencil className="w-4 h-4" />
-                      </Button>
+                      </button>
                     )}
-                    <Button variant="ghost" size="sm" onClick={() => onRetirer(stock)} title="Retirer du catalogue">
-                      <Trash2 className="w-4 h-4 text-danger" />
-                    </Button>
+                    <button onClick={() => onRetirer(stock)} title="Retirer du catalogue" className="p-1.5 text-gris-doux hover:text-danger transition-colors duration-200 cursor-pointer">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </td>
               </tr>

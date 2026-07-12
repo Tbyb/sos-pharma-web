@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Card from '../atoms/Card';
-import Input from '../atoms/Input';
+import FormInput from '../atoms/FormInput';
 import Button from '../atoms/Button';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { geocoderInverse } from '../../utils/geo';
@@ -71,14 +71,14 @@ export default function InscriptionPharmacieForm() {
   return (
     <div className="max-w-xl mx-auto">
       <Card>
-        <h1 className="text-xl font-bold text-noir mb-1">Inscrire votre pharmacie</h1>
-        <p className="text-sm text-gris mb-6">
+        <h1 className="text-xl font-semibold text-bleu-nuit mb-1">Inscrire votre pharmacie</h1>
+        <p className="text-sm text-gris-doux mb-6">
           Renseignez les informations officielles de votre pharmacie. Votre compte sera en attente
           de certification par notre équipe avant de pouvoir recevoir des commandes.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
+          <FormInput
             label="Nom de la pharmacie"
             value={form.nomPharmacie}
             onChange={handleChange('nomPharmacie')}
@@ -87,7 +87,7 @@ export default function InscriptionPharmacieForm() {
             required
           />
 
-          <Input
+          <FormInput
             label="Adresse"
             value={form.addresse}
             onChange={handleChange('addresse')}
@@ -107,14 +107,14 @@ export default function InscriptionPharmacieForm() {
               <LocateFixed className="w-3.5 h-3.5" /> Utiliser ma position actuelle
             </Button>
             {coords && (
-              <p className="text-xs text-vert mt-1">Position enregistrée ({coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)})</p>
+              <p className="text-xs text-vert-medical mt-1.5">Position enregistrée ({coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)})</p>
             )}
             {statutGeoloc === 'refuse' && (
-              <p className="text-xs text-danger mt-1">Localisation refusée ou indisponible.</p>
+              <p className="text-xs text-danger mt-1.5">Localisation refusée ou indisponible.</p>
             )}
           </div>
 
-          <Input
+          <FormInput
             label="Téléphone"
             type="tel"
             value={form.numTel}
@@ -124,7 +124,7 @@ export default function InscriptionPharmacieForm() {
             required
           />
 
-          <Input
+          <FormInput
             label="Numéro de licence"
             value={form.numLicence}
             onChange={handleChange('numLicence')}
@@ -134,8 +134,8 @@ export default function InscriptionPharmacieForm() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-noir mb-1">Document officiel (licence, PDF/JPG/PNG)</label>
-            <label className="flex items-center gap-2 border border-dashed border-gray-300 rounded-lg px-3 py-2 text-sm text-gris cursor-pointer hover:border-bleu">
+            <label className="block text-sm font-medium text-bleu-nuit mb-1.5">Document officiel (licence, PDF/JPG/PNG)</label>
+            <label className="flex items-center gap-2 border border-dashed border-gris-bordure rounded-[8px] px-4 py-3 text-sm text-gris-doux cursor-pointer hover:border-vert-medical transition-colors duration-200">
               <Upload className="w-4 h-4" />
               {document ? document.name : 'Choisir un fichier'}
               <input
@@ -145,7 +145,7 @@ export default function InscriptionPharmacieForm() {
                 onChange={(e) => setDocument(e.target.files?.[0] || null)}
               />
             </label>
-            {errors.documentUpload && <p className="mt-1 text-xs text-danger">{errors.documentUpload}</p>}
+            {errors.documentUpload && <p className="mt-1.5 text-xs text-danger">{errors.documentUpload}</p>}
           </div>
 
           <Button type="submit" loading={inscrire.isPending} className="w-full justify-center">

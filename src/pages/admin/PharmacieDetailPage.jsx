@@ -72,23 +72,23 @@ export default function PharmacieDetailPage() {
 
   return (
     <div>
-      <Link to="/admin/pharmacies" className="inline-flex items-center gap-1 text-sm text-gris hover:text-noir mb-4">
+      <Link to="/admin/pharmacies" className="inline-flex items-center gap-1 text-sm text-gris-doux hover:text-vert-medical transition-colors duration-200 mb-4">
         <ArrowLeft className="w-4 h-4" /> Retour à la liste
       </Link>
 
       <Card className="mb-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl font-bold text-noir">{pharmacie.nomPharmacie}</h1>
-            <div className="flex items-center gap-1 mt-2 text-sm text-gris">
+            <h1 className="text-xl font-semibold text-bleu-nuit">{pharmacie.nomPharmacie}</h1>
+            <div className="flex items-center gap-1.5 mt-2 text-sm text-gris-doux">
               <MapPin className="w-4 h-4" /> {pharmacie.addresse}
             </div>
             {pharmacie.numTel && (
-              <div className="flex items-center gap-1 mt-1 text-sm text-gris">
+              <div className="flex items-center gap-1.5 mt-1 text-sm text-gris-doux font-mono">
                 <Phone className="w-4 h-4" /> {pharmacie.numTel}
               </div>
             )}
-            <div className="flex items-center gap-1 mt-1 text-sm text-gris">
+            <div className="flex items-center gap-1.5 mt-1 text-sm text-gris-doux font-mono">
               <BadgeCheck className="w-4 h-4" /> Licence {pharmacie.numLicence}
             </div>
             {pharmacie.documentUpload && (
@@ -96,7 +96,7 @@ export default function PharmacieDetailPage() {
                 href={getStorageUrl(pharmacie.documentUpload)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 mt-1 text-sm text-bleu hover:underline w-fit"
+                className="flex items-center gap-1.5 mt-1 text-sm text-vert-medical hover:text-vert-profond transition-colors duration-200 w-fit"
               >
                 <FileText className="w-4 h-4" /> Voir le document soumis
               </a>
@@ -105,7 +105,7 @@ export default function PharmacieDetailPage() {
           <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
         </div>
 
-        <div className="flex gap-2 mt-4 pt-4 border-t">
+        <div className="flex gap-2 mt-4 pt-4 border-t border-gris-bordure">
           {pharmacie.statut === 'en_attente' && (
             <>
               <Button size="sm" variant="secondary" onClick={() => setAction('certifier')}>Certifier</Button>
@@ -121,36 +121,36 @@ export default function PharmacieDetailPage() {
         </div>
 
         {pharmacie.statut === 'refusee' && pharmacie.motif_refus && (
-          <p className="mt-4 pt-4 border-t text-sm text-gris">
-            <span className="font-medium text-noir">Motif du refus : </span>{pharmacie.motif_refus}
+          <p className="mt-4 pt-4 border-t border-gris-bordure text-sm text-gris-doux">
+            <span className="font-medium text-bleu-nuit">Motif du refus : </span>{pharmacie.motif_refus}
           </p>
         )}
       </Card>
 
       <Card className="mb-4">
-        <h2 className="font-semibold text-noir mb-4">Catalogue ({catalogue.length})</h2>
+        <h2 className="font-medium text-bleu-nuit mb-4">Catalogue ({catalogue.length})</h2>
         {loadingCatalogue ? (
           <Skeleton height="120px" />
         ) : catalogue.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gris border-b">
-                  <th className="py-2 px-3 font-medium">Médicament</th>
-                  <th className="py-2 px-3 font-medium">Prix unitaire</th>
-                  <th className="py-2 px-3 font-medium">Quantité</th>
-                  <th className="py-2 px-3 font-medium">Disponible</th>
+                <tr className="text-left bg-blanc-casse">
+                  <th className="py-2 px-3 font-semibold text-gris-doux text-xs uppercase tracking-wide">Médicament</th>
+                  <th className="py-2 px-3 font-semibold text-gris-doux text-xs uppercase tracking-wide">Prix unitaire</th>
+                  <th className="py-2 px-3 font-semibold text-gris-doux text-xs uppercase tracking-wide">Quantité</th>
+                  <th className="py-2 px-3 font-semibold text-gris-doux text-xs uppercase tracking-wide">Disponible</th>
                 </tr>
               </thead>
               <tbody>
                 {catalogue.map((stock) => (
-                  <tr key={stock.id} className="border-b last:border-0">
-                    <td className="py-2 px-3 text-noir">{stock.medicament?.designation}</td>
-                    <td className="py-2 px-3">{formatMontant(stock.prix_unitaire)}</td>
-                    <td className="py-2 px-3">{stock.quantite}</td>
+                  <tr key={stock.id} className="border-t border-gris-bordure">
+                    <td className="py-2 px-3 text-bleu-nuit">{stock.medicament?.designation}</td>
+                    <td className="py-2 px-3 font-mono text-bleu-nuit">{formatMontant(stock.prix_unitaire)}</td>
+                    <td className="py-2 px-3 font-mono text-gris-doux">{stock.quantite}</td>
                     <td className="py-2 px-3">
                       {stock.disponible
-                        ? <Badge couleur="#16A34A" fond="#DCFCE7">Disponible</Badge>
+                        ? <Badge couleur="#0A5C36" fond="#E8F5EE">Disponible</Badge>
                         : <Badge couleur="#6B7280" fond="#F3F4F6">Indisponible</Badge>}
                     </td>
                   </tr>
@@ -159,12 +159,12 @@ export default function PharmacieDetailPage() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-gris py-6 text-center">Aucun médicament dans le catalogue.</p>
+          <p className="text-sm text-gris-doux py-6 text-center">Aucun médicament dans le catalogue.</p>
         )}
       </Card>
 
       <Card>
-        <h2 className="font-semibold text-noir mb-4">Commandes récentes</h2>
+        <h2 className="font-medium text-bleu-nuit mb-4">Commandes récentes</h2>
         {loadingCommandes ? (
           <Skeleton height="120px" />
         ) : commandes.length ? (
@@ -172,13 +172,13 @@ export default function PharmacieDetailPage() {
             {commandes.map((commande) => {
               const statutCommande = STATUTS_COMMANDE[commande.statut_commande] || { label: commande.statut_commande, couleur: '#6B7280', fond: '#F3F4F6' };
               return (
-                <div key={commande.id} className="flex items-center justify-between p-3 rounded-lg bg-gris-clair/50">
+                <div key={commande.id} className="flex items-center justify-between p-3 rounded-[8px] bg-blanc-casse">
                   <div>
-                    <p className="text-sm font-medium text-noir">Commande #{commande.id}</p>
-                    <p className="text-xs text-gris">{formatDate(commande.date_commande)}</p>
+                    <p className="text-sm font-medium text-bleu-nuit">Commande #{commande.id}</p>
+                    <p className="text-xs text-gris-doux">{formatDate(commande.date_commande)}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-noir">{formatMontant(commande.montant_total)}</span>
+                    <span className="text-sm font-mono font-medium text-bleu-nuit">{formatMontant(commande.montant_total)}</span>
                     <Badge couleur={statutCommande.couleur} fond={statutCommande.fond}>{statutCommande.label}</Badge>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function PharmacieDetailPage() {
             })}
           </div>
         ) : (
-          <p className="text-sm text-gris py-6 text-center">Aucune commande pour cette pharmacie.</p>
+          <p className="text-sm text-gris-doux py-6 text-center">Aucune commande pour cette pharmacie.</p>
         )}
       </Card>
 

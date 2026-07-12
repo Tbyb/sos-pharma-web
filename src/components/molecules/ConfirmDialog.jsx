@@ -35,7 +35,7 @@ export default function ConfirmDialog({
         </>
       }
     >
-      {description && <p className="text-sm text-gris">{description}</p>}
+      {description && <p className="text-sm text-gris-doux">{description}</p>}
       {onMotifChange && (
         <Textarea
           className="mt-3"

@@ -13,7 +13,7 @@ export default function RoleRoute({ role }) {
 
   if (user.role !== role) {
     if (user.role === 'administrateur') return <Navigate to="/admin/dashboard" replace />;
-    if (user.role === 'pharmacien') return <Navigate to="/pharmacien/catalogue" replace />;
+    if (user.role === 'pharmacien') return <Navigate to="/pharmacien/dashboard" replace />;
     return <Navigate to="/" replace />;
   }
 

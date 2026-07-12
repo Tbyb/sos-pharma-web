@@ -12,17 +12,17 @@ export default function Modal({ open, onClose, title, children, footer }) {
         className="fixed inset-0 bg-black/50 animate-[fade-in_0.15s_ease-out]"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] flex flex-col animate-[scale-in_0.15s_ease-out]">
+      <div className="relative bg-white rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-lg mx-4 max-h-[90vh] flex flex-col animate-[scale-in_0.15s_ease-out]">
         {title && (
-          <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="text-lg font-semibold text-noir">{title}</h3>
-            <button onClick={onClose} className="p-1 rounded hover:bg-gris-clair text-gris cursor-pointer">
+          <div className="flex items-center justify-between p-4 border-b border-gris-bordure">
+            <h3 className="text-lg font-medium text-bleu-nuit">{title}</h3>
+            <button onClick={onClose} className="p-1 rounded-[6px] hover:bg-vert-menthe text-gris-doux transition-colors duration-200 cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>
         )}
         <div className="p-4 overflow-y-auto flex-1">{children}</div>
-        {footer && <div className="p-4 border-t flex justify-end gap-2">{footer}</div>}
+        {footer && <div className="p-4 border-t border-gris-bordure flex justify-end gap-2">{footer}</div>}
       </div>
     </div>
   );

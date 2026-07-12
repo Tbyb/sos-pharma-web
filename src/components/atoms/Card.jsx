@@ -4,7 +4,7 @@
 export default function Card({ padding = 'md', children, className = '' }) {
   const paddings = { sm: 'p-3', md: 'p-5', lg: 'p-6' };
   return (
-    <div className={`bg-white rounded-lg shadow-card ${paddings[padding]} ${className}`}>
+    <div className={`bg-white rounded-[8px] border border-gris-bordure shadow-card ${paddings[padding]} ${className}`}>
       {children}
     </div>
   );

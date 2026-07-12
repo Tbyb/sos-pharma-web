@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../atoms/Input';
-import Button from '../atoms/Button';
+import FormInput from '../atoms/FormInput';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock, User, Phone, KeyRound } from 'lucide-react';
 
@@ -65,13 +64,12 @@ export default function RegisterForm({ role = 'patient' }) {
   if (etape === 'otp') {
     return (
       <form onSubmit={handleSubmitOtp} className="space-y-4">
-
-        <p className="text-sm text-gris">
-          Un code à 6 chiffres a été envoyé à <span className="font-medium text-noir">{form.email}</span>.
+        <p className="text-sm text-gris-doux">
+          Un code à 6 chiffres a été envoyé à <span className="font-medium text-bleu-nuit">{form.email}</span>.
           Entrez-le ci-dessous pour confirmer votre compte.
         </p>
 
-        <Input
+        <FormInput
           label="Code de confirmation"
           placeholder="123456"
           value={otp}
@@ -82,18 +80,21 @@ export default function RegisterForm({ role = 'patient' }) {
           required
         />
 
-        <Button type="submit" loading={loading} className="w-full" disabled={otp.length !== 6}>
-          Confirmer mon compte
-        </Button>
+        <button
+          type="submit"
+          disabled={loading || otp.length !== 6}
+          className="w-full py-3 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors duration-200"
+        >
+          {loading ? 'Confirmation...' : 'Confirmer mon compte'}
+        </button>
       </form>
     );
   }
 
   return (
     <form onSubmit={handleSubmitInscription} className="space-y-4">
-
       <div className="grid grid-cols-2 gap-3">
-        <Input
+        <FormInput
           label="Nom"
           placeholder="Diallo"
           value={form.nom}
@@ -102,7 +103,7 @@ export default function RegisterForm({ role = 'patient' }) {
           icon={<User className="w-4 h-4" />}
           required
         />
-        <Input
+        <FormInput
           label="Prénom"
           placeholder="Aminata"
           value={form.prenom}
@@ -113,7 +114,7 @@ export default function RegisterForm({ role = 'patient' }) {
         />
       </div>
 
-      <Input
+      <FormInput
         label="Email"
         type="email"
         placeholder="votre@email.com"
@@ -124,7 +125,7 @@ export default function RegisterForm({ role = 'patient' }) {
         required
       />
 
-      <Input
+      <FormInput
         label="Téléphone"
         type="tel"
         placeholder="77 123 45 67"
@@ -135,7 +136,7 @@ export default function RegisterForm({ role = 'patient' }) {
         required
       />
 
-      <Input
+      <FormInput
         label="Mot de passe"
         type="password"
         placeholder="••••••••"
@@ -146,7 +147,7 @@ export default function RegisterForm({ role = 'patient' }) {
         required
       />
 
-      <Input
+      <FormInput
         label="Confirmer le mot de passe"
         type="password"
         placeholder="••••••••"
@@ -157,9 +158,13 @@ export default function RegisterForm({ role = 'patient' }) {
         required
       />
 
-      <Button type="submit" loading={loading} className="w-full">
-        Créer mon compte
-      </Button>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors duration-200"
+      >
+        {loading ? 'Création...' : 'Créer mon compte'}
+      </button>
     </form>
   );
 }
