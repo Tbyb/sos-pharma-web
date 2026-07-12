@@ -12,16 +12,18 @@ export default function MesCommandesPage() {
   const totalPages = meta.last_page || Math.ceil((meta.total || 0) / perPage) || 1;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-noir mb-6">Mes commandes</h1>
+    <div className="min-h-screen bg-blanc-casse">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <h1 className="font-display text-2xl text-bleu-nuit mb-6">Mes commandes</h1>
 
-      <CommandesList
-        commandes={commandes}
-        isLoading={isLoading}
-        currentPage={meta.current_page || page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+        <CommandesList
+          commandes={commandes}
+          isLoading={isLoading}
+          currentPage={meta.current_page || page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      </div>
     </div>
   );
 }

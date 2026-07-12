@@ -7,14 +7,14 @@ export default function CommandesList({ commandes, isLoading, currentPage, total
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} variant="card" />
+          <Skeleton key={i} variant="card" height="76px" />
         ))}
       </div>
     );
   }
 
   if (!commandes.length) {
-    return <p className="text-center text-gris py-12">Aucune commande pour le moment.</p>;
+    return <p className="text-center text-gris-doux py-16">Aucune commande pour le moment.</p>;
   }
 
   return (

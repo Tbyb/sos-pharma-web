@@ -1,106 +1,108 @@
-import { useState, useCallback, useMemo } from 'react';
-import { LocateFixed } from 'lucide-react';
-import SearchBar from '../../components/molecules/SearchBar';
-import MedicamentsList from '../../components/organisms/MedicamentsList';
-import Button from '../../components/atoms/Button';
-import { useMedicaments } from '../../hooks/useMedicaments';
-import { useGeolocation } from '../../hooks/useGeolocation';
-import { calculerDistanceKm } from '../../utils/geo';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Pill, Wallet, Store, ShieldCheck } from 'lucide-react';
+
+const ETAPES = [
+  {
+    icon: Pill,
+    titre: 'Recherchez',
+    description: 'Trouvez votre médicament parmi les pharmacies certifiées de Dakar.',
+  },
+  {
+    icon: Wallet,
+    titre: 'Comparez les prix',
+    description: 'Visualisez instantanément le meilleur prix disponible près de chez vous.',
+  },
+  {
+    icon: Store,
+    titre: 'Choisissez',
+    description: 'Retrait en pharmacie ou livraison à domicile, selon votre besoin.',
+  },
+  {
+    icon: ShieldCheck,
+    titre: 'Recevez',
+    description: 'Récupérez vos médicaments en toute sérénité, au prix annoncé.',
+  },
+];
 
 export default function HomePage() {
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [tri, setTri] = useState('pertinence');
-  const { position, statut: statutGeoloc, demanderPosition } = useGeolocation();
+  const [recherche, setRecherche] = useState('');
+  const navigate = useNavigate();
 
-  const { data, isLoading } = useMedicaments({ search: search || undefined, page });
-
-  const handleSearch = useCallback((value) => {
-    setSearch(value);
-    setPage(1);
-  }, []);
-
-  const medicaments = data?.data;
-  const meta = data?.meta || {};
-
-  const medicamentsTries = useMemo(() => {
-    const enrichis = (medicaments || []).map((m) => {
-      const prix = (m.stocks || []).map((s) => parseFloat(s.prix_unitaire)).filter((p) => !Number.isNaN(p));
-      const prixMin = prix.length ? Math.min(...prix) : null;
-
-      let distanceMin = null;
-      if (position) {
-        const distances = (m.stocks || [])
-          .map((s) => (s.pharmacie?.latitude && s.pharmacie?.longitude)
-            ? calculerDistanceKm(position.latitude, position.longitude, parseFloat(s.pharmacie.latitude), parseFloat(s.pharmacie.longitude))
-            : null)
-          .filter((d) => d != null);
-        distanceMin = distances.length ? Math.min(...distances) : null;
-      }
-
-      return { ...m, _prixMin: prixMin, _distanceMin: distanceMin };
-    });
-
-    const trier = {
-      prix_asc: (a, b) => (a._prixMin ?? Infinity) - (b._prixMin ?? Infinity),
-      prix_desc: (a, b) => (b._prixMin ?? -Infinity) - (a._prixMin ?? -Infinity),
-      distance: (a, b) => (a._distanceMin ?? Infinity) - (b._distanceMin ?? Infinity),
-    }[tri];
-
-    return trier ? [...enrichis].sort(trier) : enrichis;
-  }, [medicaments, tri, position]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const q = recherche.trim();
+    navigate(q ? `/medicaments?search=${encodeURIComponent(q)}` : '/medicaments');
+  };
 
   return (
     <div>
-      <section className="bg-vert-clair py-12 px-4">
+      {/* Hero */}
+      <section className="bg-gradient-to-b from-blanc-casse to-vert-menthe px-4 py-20 md:py-28">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-3xl font-bold text-noir mb-2">Trouvez vos médicaments au meilleur prix</h1>
-          <p className="text-gris mb-6">Comparez les prix dans les pharmacies certifiées de Dakar</p>
-          <SearchBar
-            onSearch={handleSearch}
-            placeholder="Rechercher un médicament (ex: Paracétamol, Amoxicilline...)"
-          />
+          <h1 className="font-display text-4xl md:text-[52px] leading-tight text-bleu-nuit mb-4">
+            Trouvez vos médicaments au meilleur prix
+          </h1>
+          <p className="text-gris-doux text-lg mb-10 max-w-xl mx-auto">
+            Comparez les prix dans les pharmacies certifiées de Dakar, en quelques secondes.
+          </p>
+
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
+            <div className="relative flex-1">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-vert-medical" />
+              <input
+                type="text"
+                value={recherche}
+                onChange={(e) => setRecherche(e.target.value)}
+                placeholder="Rechercher un médicament (ex: Paracétamol, Amoxicilline...)"
+                className="w-full pl-14 pr-5 py-4 rounded-[8px] border border-gris-bordure bg-white text-bleu-nuit placeholder:text-gris-doux shadow-[0_4px_16px_rgba(10,92,54,0.08)] outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-8 py-4 rounded-[6px] bg-vert-medical hover:bg-vert-profond text-white font-medium transition-colors duration-200 shrink-0"
+            >
+              Rechercher
+            </button>
+          </form>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 py-8">
-        {search && (
-          <p className="text-sm text-gris mb-4">
-            Résultats pour « <span className="font-medium text-noir">{search}</span> »
+      {/* Comment ça marche */}
+      <section className="max-w-6xl mx-auto px-4 py-20">
+        <h2 className="font-display text-3xl text-bleu-nuit text-center mb-16">Comment ça marche</h2>
+
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6">
+          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] border-t-2 border-dashed border-vert-medical" />
+
+          {ETAPES.map(({ icon: Icon, titre, description }) => (
+            <div key={titre} className="relative flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-vert-menthe ring-8 ring-white flex items-center justify-center mb-5">
+                <Icon className="w-7 h-7 text-vert-profond" />
+              </div>
+              <h3 className="font-medium text-bleu-nuit mb-2">{titre}</h3>
+              <p className="text-sm text-gris-doux leading-relaxed">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA pharmacies */}
+      <section className="bg-vert-profond px-4 py-14">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-display text-2xl md:text-3xl text-white mb-3">
+            Trouvez la pharmacie la plus proche
+          </h2>
+          <p className="text-white/80 mb-8">
+            Localisez les pharmacies certifiées autour de vous et vérifiez leurs horaires.
           </p>
-        )}
-
-        {medicamentsTries.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <select
-              value={tri}
-              onChange={(e) => setTri(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-bleu focus:ring-2 focus:ring-bleu/20"
-            >
-              <option value="pertinence">Trier par</option>
-              <option value="prix_asc">Prix croissant</option>
-              <option value="prix_desc">Prix décroissant</option>
-              <option value="distance">Distance (plus proche)</option>
-            </select>
-
-            {tri === 'distance' && !position && (
-              <Button size="sm" variant="outline" onClick={demanderPosition} loading={statutGeoloc === 'chargement'}>
-                <LocateFixed className="w-3.5 h-3.5" /> Activer la localisation
-              </Button>
-            )}
-            {tri === 'distance' && statutGeoloc === 'refuse' && (
-              <span className="text-xs text-danger">Localisation refusée ou indisponible.</span>
-            )}
-          </div>
-        )}
-
-        <MedicamentsList
-          medicaments={medicamentsTries}
-          isLoading={isLoading}
-          currentPage={meta.current_page || page}
-          totalPages={meta.last_page || 1}
-          onPageChange={setPage}
-        />
+          <button
+            onClick={() => navigate('/pharmacies')}
+            className="px-8 py-3.5 rounded-[6px] bg-white text-vert-profond font-medium hover:bg-vert-menthe transition-colors duration-200"
+          >
+            Voir les pharmacies
+          </button>
+        </div>
       </section>
     </div>
   );

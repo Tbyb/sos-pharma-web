@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import { usePharmacies } from '../../hooks/usePharmacies';
 import { useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import PharmacieCard from '../../components/molecules/PharmacieCard';
 import Spinner from '../../components/atoms/Spinner';
-import Button from '../../components/atoms/Button';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Navigation, X, Car, Footprints } from 'lucide-react';
@@ -43,7 +43,7 @@ function UserMarker({ position }) {
   if (!position) return null;
   const icon = L.divIcon({
     className: '',
-    html: '<div style="width:14px;height:14px;background:#1A6FBF;border:3px solid white;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>',
+    html: '<div style="width:14px;height:14px;background:#1A3A5C;border:3px solid white;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>',
     iconSize: [14, 14],
     iconAnchor: [7, 7],
   });
@@ -53,44 +53,50 @@ function UserMarker({ position }) {
 function RouteInfoOverlay({ routeInfo, selectedMode, onSelectMode, onStart, onClose, tracking, onStop }) {
   if (!routeInfo) return null;
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-lg shadow-lg p-4 w-[calc(100vw-2rem)] max-w-[300px]">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white rounded-[8px] border border-gris-bordure shadow-[0_4px_16px_rgba(0,0,0,0.1)] p-4 w-[calc(100vw-2rem)] max-w-[300px]">
       <div className="flex items-center justify-between mb-3">
-        <span className="font-semibold text-noir text-sm">Itinéraire</span>
-        <button onClick={onClose} className="p-1 hover:bg-gris-clair rounded cursor-pointer">
-          <X className="w-4 h-4 text-gris" />
+        <span className="font-medium text-bleu-nuit text-sm">Itinéraire</span>
+        <button onClick={onClose} className="p-1 hover:bg-vert-menthe rounded-[6px] transition-colors duration-200 cursor-pointer">
+          <X className="w-4 h-4 text-gris-doux" />
         </button>
       </div>
 
       <div className="flex gap-2 mb-3">
         <button
           onClick={() => onSelectMode('driving')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm cursor-pointer transition-colors ${selectedMode === 'driving' ? 'bg-bleu text-white' : 'bg-gris-clair text-noir hover:bg-gray-200'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-[6px] text-sm cursor-pointer transition-colors duration-200 ${selectedMode === 'driving' ? 'bg-vert-medical text-white' : 'bg-blanc-casse text-bleu-nuit hover:bg-vert-menthe'}`}
         >
           <Car className="w-4 h-4" />
-          <span>{formatDuration(routeInfo.driving?.duration)}</span>
+          <span className="font-mono">{formatDuration(routeInfo.driving?.duration)}</span>
         </button>
         <button
           onClick={() => onSelectMode('foot')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm cursor-pointer transition-colors ${selectedMode === 'foot' ? 'bg-bleu text-white' : 'bg-gris-clair text-noir hover:bg-gray-200'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-[6px] text-sm cursor-pointer transition-colors duration-200 ${selectedMode === 'foot' ? 'bg-vert-medical text-white' : 'bg-blanc-casse text-bleu-nuit hover:bg-vert-menthe'}`}
         >
           <Footprints className="w-4 h-4" />
-          <span>{formatDuration(routeInfo.foot?.duration)}</span>
+          <span className="font-mono">{formatDuration(routeInfo.foot?.duration)}</span>
         </button>
       </div>
 
-      <p className="text-xs text-gris text-center mb-3">
+      <p className="text-xs text-gris-doux text-center mb-3 font-mono">
         {formatDistance(routeInfo[selectedMode]?.distance)}
       </p>
 
       {!tracking ? (
-        <Button size="sm" className="w-full" onClick={onStart}>
+        <button
+          onClick={onStart}
+          className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-[6px] bg-vert-medical hover:bg-vert-profond text-white text-sm font-medium transition-colors duration-200"
+        >
           <Navigation className="w-3.5 h-3.5" />
           Suivre l'itinéraire
-        </Button>
+        </button>
       ) : (
-        <Button size="sm" variant="danger" className="w-full" onClick={onStop}>
+        <button
+          onClick={onStop}
+          className="w-full py-2.5 rounded-[6px] bg-danger hover:bg-[#B91C1C] text-white text-sm font-medium transition-colors duration-200"
+        >
           Arrêter le suivi
-        </Button>
+        </button>
       )}
     </div>
   );
@@ -113,38 +119,51 @@ function formatDistance(meters) {
 
 export default function PharmaciesMapPage() {
   const { data, isLoading } = usePharmacies();
-  const [searchParams] = useSearchParams();
-  const [selected, setSelected] = useState(null);
-  const [flyTo, setFlyTo] = useState(null);
-  const [flyZoom, setFlyZoom] = useState(16);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pharmaIdUrl = searchParams.get('id');
+
+  // L'URL est l'unique source de verite pour la selection : "selected" est
+  // entierement derive (useMemo), aucun useEffect ne synchronise d'etat local.
+  const [routeState, setRouteState] = useState({ pharmaId: null, route: null, routeInfo: null });
   const [userPos, setUserPos] = useState(null);
-  const [route, setRoute] = useState(null);
-  const [routeInfo, setRouteInfo] = useState(null);
   const [selectedMode, setSelectedMode] = useState('driving');
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [tracking, setTracking] = useState(false);
   const [watchId, setWatchId] = useState(null);
 
-  const pharmacies = data?.data || data || [];
+  const pharmacies = useMemo(() => data?.data || data || [], [data]);
 
-  const stopTracking = () => {
-    if (watchId) {
-      navigator.geolocation?.clearWatch(watchId);
-      setWatchId(null);
-    }
+  const selected = useMemo(() => {
+    if (!pharmaIdUrl) return null;
+    return pharmacies.find((p) => String(p.id) === pharmaIdUrl) || null;
+  }, [pharmaIdUrl, pharmacies]);
+
+  // La route affichee ne concerne que la pharmacie actuellement selectionnee :
+  // changer de selection la rend automatiquement obsolete, sans reset explicite.
+  const route = selected && routeState.pharmaId === selected.id ? routeState.route : null;
+  const routeInfo = selected && routeState.pharmaId === selected.id ? routeState.routeInfo : null;
+
+  const flyToSelected = useMemo(() => {
+    if (!selected?.latitude || !selected?.longitude) return null;
+    return [parseFloat(selected.latitude), parseFloat(selected.longitude)];
+  }, [selected]);
+
+  const flyTo = tracking ? userPos : flyToSelected;
+  const flyZoom = tracking ? 17 : 16;
+
+  const stopTracking = useCallback(() => {
+    setWatchId((id) => {
+      if (id) navigator.geolocation?.clearWatch(id);
+      return null;
+    });
     setTracking(false);
-  };
+  }, []);
 
-  const handleSelectPharmacie = (pharma) => {
+  const handleSelectPharmacie = useCallback((pharma) => {
     if (!pharma.latitude || !pharma.longitude) return;
-    const pos = [parseFloat(pharma.latitude), parseFloat(pharma.longitude)];
-    setSelected(pharma);
-    setFlyTo(pos);
-    setFlyZoom(16);
-    setRoute(null);
-    setRouteInfo(null);
     stopTracking();
-  };
+    setSearchParams({ id: String(pharma.id) });
+  }, [stopTracking, setSearchParams]);
 
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
@@ -152,16 +171,6 @@ export default function PharmaciesMapPage() {
       () => {}
     );
   }, []);
-
-  useEffect(() => {
-    const pharmaId = searchParams.get('id');
-    if (pharmaId && pharmacies.length > 0) {
-      const pharma = pharmacies.find((p) => String(p.id) === pharmaId);
-      if (pharma && pharma.latitude && pharma.longitude) {
-        handleSelectPharmacie(pharma);
-      }
-    }
-  }, [searchParams, pharmacies]);
 
   useEffect(() => {
     return () => {
@@ -191,7 +200,7 @@ export default function PharmaciesMapPage() {
 
   const handleItineraire = async (pharma) => {
     if (!userPos) {
-      alert('Impossible de déterminer votre position. Activez la géolocalisation.');
+      toast.error('Impossible de déterminer votre position. Activez la géolocalisation.');
       return;
     }
     setLoadingRoute(true);
@@ -201,14 +210,12 @@ export default function PharmaciesMapPage() {
         fetchRoute(pharma, 'foot'),
       ]);
       if (driving || foot) {
-        setRouteInfo({ driving, foot });
-        setSelectedMode('driving');
         const active = driving || foot;
-        setRoute(active.coords);
-        setFlyTo(null);
+        setSelectedMode('driving');
+        setRouteState({ pharmaId: pharma.id, route: active.coords, routeInfo: { driving, foot } });
       }
     } catch {
-      alert('Erreur lors du calcul de l\'itinéraire.');
+      toast.error("Erreur lors du calcul de l'itinéraire.");
     } finally {
       setLoadingRoute(false);
     }
@@ -216,21 +223,14 @@ export default function PharmaciesMapPage() {
 
   const handleSelectMode = (mode) => {
     setSelectedMode(mode);
-    if (routeInfo && routeInfo[mode]) {
-      setRoute(routeInfo[mode].coords);
-    }
+    setRouteState((r) => (r.routeInfo?.[mode] ? { ...r, route: r.routeInfo[mode].coords } : r));
   };
 
   const startTracking = () => {
     if (!navigator.geolocation) return;
     setTracking(true);
     const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        const newPos = [pos.coords.latitude, pos.coords.longitude];
-        setUserPos(newPos);
-        setFlyTo(newPos);
-        setFlyZoom(17);
-      },
+      (pos) => setUserPos([pos.coords.latitude, pos.coords.longitude]),
       () => {},
       { enableHighAccuracy: true, maximumAge: 3000 }
     );
@@ -238,10 +238,14 @@ export default function PharmaciesMapPage() {
   };
 
   const clearRoute = () => {
-    setRoute(null);
-    setRouteInfo(null);
+    setRouteState({ pharmaId: null, route: null, routeInfo: null });
     stopTracking();
   };
+
+  const pharmaciesGeolocalisees = useMemo(
+    () => pharmacies.filter((p) => p.latitude && p.longitude),
+    [pharmacies]
+  );
 
   if (isLoading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
@@ -249,30 +253,26 @@ export default function PharmaciesMapPage() {
 
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
-      <div className="w-full lg:w-80 p-4 overflow-y-auto border-r bg-white">
-        <h2 className="text-lg font-semibold text-noir mb-4">Pharmacies ({pharmacies.length})</h2>
+      <div className="w-full lg:w-80 p-4 overflow-y-auto border-r border-gris-bordure bg-white">
+        <h2 className="font-display text-xl text-bleu-nuit mb-4">Pharmacies ({pharmacies.length})</h2>
         <div className="space-y-3">
           {pharmacies.map((pharma) => (
-            <div
-              key={pharma.id}
-              className={`rounded-lg transition-colors ${selected?.id === pharma.id ? 'ring-2 ring-bleu' : ''}`}
-            >
+            <div key={pharma.id}>
               <PharmacieCard
                 pharmacie={pharma}
+                selected={selected?.id === pharma.id}
                 onClick={() => handleSelectPharmacie(pharma)}
               />
               {selected?.id === pharma.id && pharma.latitude && pharma.longitude && !routeInfo && (
-                <div className="px-4 pb-3">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    loading={loadingRoute}
+                <div className="px-1 pt-2">
+                  <button
                     onClick={() => handleItineraire(pharma)}
-                    className="w-full mt-2"
+                    disabled={loadingRoute}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-[6px] border border-vert-medical text-vert-medical hover:bg-vert-menthe transition-colors duration-200 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <Navigation className="w-3.5 h-3.5" />
-                    Obtenir l'itinéraire
-                  </Button>
+                    {loadingRoute ? 'Calcul...' : "Obtenir l'itinéraire"}
+                  </button>
                 </div>
               )}
             </div>
@@ -303,23 +303,22 @@ export default function PharmaciesMapPage() {
           <FlyToMarker position={flyTo} zoom={flyZoom} />
           {route && !tracking && <FitRoute route={route} />}
           <UserMarker position={userPos} />
-          {route && <Polyline positions={route} color="#1A6FBF" weight={5} opacity={0.8} />}
-          {pharmacies
-            .filter((p) => p.latitude && p.longitude)
-            .map((pharma) => (
-              <Marker
-                key={pharma.id}
-                position={[parseFloat(pharma.latitude), parseFloat(pharma.longitude)]}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <p className="font-semibold">{pharma.nomPharmacie}</p>
-                    <p className="text-gray-600">{pharma.addresse}</p>
-                    {pharma.numTel && <p className="text-gray-600">{pharma.numTel}</p>}
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+          {route && <Polyline positions={route} color="#12A05C" weight={5} opacity={0.8} />}
+          {pharmaciesGeolocalisees.map((pharma) => (
+            <Marker
+              key={pharma.id}
+              position={[parseFloat(pharma.latitude), parseFloat(pharma.longitude)]}
+              eventHandlers={{ click: () => handleSelectPharmacie(pharma) }}
+            >
+              <Popup>
+                <div className="text-sm">
+                  <p className="font-semibold">{pharma.nomPharmacie}</p>
+                  <p className="text-gray-600">{pharma.addresse}</p>
+                  {pharma.numTel && <p className="text-gray-600 font-mono">{pharma.numTel}</p>}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
       </div>
     </div>

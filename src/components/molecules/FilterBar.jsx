@@ -15,14 +15,14 @@ export default function FilterBar({ search, onSearchChange, statut, onStatutChan
       <div className="flex-1">
         <SearchBar onSearch={onSearchChange} initialValue={search} placeholder="Rechercher par nom ou CIP..." />
       </div>
-      <div className="flex gap-1 bg-gris-clair rounded-lg p-1 shrink-0">
+      <div className="flex gap-1 bg-blanc-casse border border-gris-bordure rounded-[8px] p-1 shrink-0">
         {FILTRES.map((f) => (
           <button
             key={f.value}
             type="button"
             onClick={() => onStatutChange(f.value)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer transition-colors ${
-              statut === f.value ? 'bg-white text-noir shadow-sm' : 'text-gris hover:text-noir'
+            className={`px-3 py-1.5 text-sm font-medium rounded-[6px] cursor-pointer transition-colors duration-200 ${
+              statut === f.value ? 'bg-vert-medical text-white' : 'text-bleu-nuit hover:bg-vert-menthe'
             }`}
           >
             {f.label}

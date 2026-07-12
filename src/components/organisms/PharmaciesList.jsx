@@ -16,7 +16,7 @@ export default function PharmaciesList({ pharmacies = [], isLoading, onCertifier
   }
 
   if (!pharmacies.length) {
-    return <p className="text-center text-gris py-12">Aucune pharmacie dans cette catégorie.</p>;
+    return <p className="text-center text-gris-doux py-16">Aucune pharmacie dans cette catégorie.</p>;
   }
 
   return (

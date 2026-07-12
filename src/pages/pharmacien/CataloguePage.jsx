@@ -81,8 +81,7 @@ export default function CataloguePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
-        <h1 className="text-2xl font-bold text-noir">Mon catalogue</h1>
+      <div className="flex items-center justify-end mb-6 flex-wrap gap-2">
         <div className="flex gap-2">
           <input ref={fileInputRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={handleFileChange} />
           <Button variant="outline" onClick={handleImportClick} loading={importer.isPending}>

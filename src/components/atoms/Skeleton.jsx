@@ -2,7 +2,7 @@
  * @param {{ variant?: 'line'|'card'|'circle', width?: string, height?: string }} props
  */
 export default function Skeleton({ variant = 'line', width, height, className = '' }) {
-  const base = 'animate-pulse bg-gray-200 rounded';
+  const base = 'skeleton-shimmer rounded';
 
   if (variant === 'circle') {
     return <div className={`${base} rounded-full ${className}`} style={{ width: width || '40px', height: height || '40px' }} />;

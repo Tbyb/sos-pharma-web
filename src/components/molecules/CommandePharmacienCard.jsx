@@ -24,8 +24,8 @@ export default function CommandePharmacienCard({ commande, onAccepter, onRefuser
     <Card>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-semibold text-noir">Commande #{commande.id}</p>
-          <p className="text-xs text-gris mt-0.5">{formatDate(commande.date_commande)} • {commande.patient?.nom || '—'}</p>
+          <p className="font-medium text-bleu-nuit">Commande #{commande.id}</p>
+          <p className="text-xs text-gris-doux mt-0.5">{formatDate(commande.date_commande)} • {commande.patient?.nom || '—'}</p>
         </div>
         <div className="flex flex-col items-end gap-1">
           <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
@@ -37,15 +37,15 @@ export default function CommandePharmacienCard({ commande, onAccepter, onRefuser
         </div>
       </div>
 
-      <ul className="mt-3 text-sm text-gris space-y-0.5">
+      <ul className="mt-3 text-sm text-gris-doux space-y-0.5">
         {items.map((item, i) => (
           <li key={item.idMedicament || i}>{item.quantite} × {item.medicament}</li>
         ))}
       </ul>
 
-      <div className="flex items-center justify-between mt-4 pt-3 border-t text-sm">
-        <span className="text-gris">{MODES_RECUPERATION[commande.mode_recuperation] || commande.mode_recuperation}</span>
-        <span className="font-semibold text-noir">{formatMontant(commande.montant_total)}</span>
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gris-bordure text-sm">
+        <span className="text-gris-doux">{MODES_RECUPERATION[commande.mode_recuperation] || commande.mode_recuperation}</span>
+        <span className="font-mono font-semibold text-bleu-nuit">{formatMontant(commande.montant_total)}</span>
       </div>
 
       <div className="flex items-center justify-between gap-2 mt-3">
@@ -78,7 +78,7 @@ export default function CommandePharmacienCard({ commande, onAccepter, onRefuser
       </div>
 
       {commande.statut_commande === 'en_attente' && !estPayee && (
-        <p className="text-xs text-warning mt-2">Le paiement doit être confirmé avant acceptation.</p>
+        <p className="text-xs text-orange-corail mt-2">Le paiement doit être confirmé avant acceptation.</p>
       )}
     </Card>
   );

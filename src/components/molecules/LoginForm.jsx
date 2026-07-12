@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Input from '../atoms/Input';
-import Button from '../atoms/Button';
+import FormInput from '../atoms/FormInput';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock } from 'lucide-react';
 
@@ -21,7 +20,7 @@ export default function LoginForm() {
       const role = await login({ email, password });
 
       if (role === 'administrateur') navigate('/admin/dashboard');
-      else if (role === 'pharmacien') navigate('/pharmacien/catalogue');
+      else if (role === 'pharmacien') navigate('/pharmacien/dashboard');
       else navigate('/');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Email ou mot de passe incorrect');
@@ -32,7 +31,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
+      <FormInput
         label="Email"
         type="email"
         placeholder="votre@email.com"
@@ -42,7 +41,7 @@ export default function LoginForm() {
         required
       />
 
-      <Input
+      <FormInput
         label="Mot de passe"
         type="password"
         placeholder="••••••••"
@@ -52,9 +51,13 @@ export default function LoginForm() {
         required
       />
 
-      <Button type="submit" loading={loading} className="w-full">
-        Se connecter
-      </Button>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium transition-colors duration-200"
+      >
+        {loading ? 'Connexion...' : 'Se connecter'}
+      </button>
     </form>
   );
 }

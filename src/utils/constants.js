@@ -14,29 +14,42 @@ export const COULEURS = {
   succes: '#16A34A',
 };
 
+// Palette DESIGN.md : orange corail (attente), bleu nuit (en cours), vert (positif/termine),
+// rouge (refuse/echoue, hors palette identite mais sanctionne par le spec Bouton Danger),
+// gris doux (annule/suspendu). Peu de teintes, statuts regroupes par sens plutot qu'un
+// coloris unique par statut.
 export const STATUTS_COMMANDE = {
-  en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  en_cours: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  acceptee: { label: 'Acceptée', couleur: '#2563EB', fond: '#DBEAFE' },
-  en_preparation: { label: 'En préparation', couleur: '#7C3AED', fond: '#EDE9FE' },
-  prete: { label: 'Prête', couleur: '#4F46E5', fond: '#E0E7FF' },
-  en_livraison: { label: 'En livraison', couleur: '#0891B2', fond: '#CFFAFE' },
-  livree: { label: 'Livrée', couleur: '#16A34A', fond: '#DCFCE7' },
-  retiree: { label: 'Retirée', couleur: '#16A34A', fond: '#DCFCE7' },
+  en_attente: { label: 'En attente de confirmation', couleur: '#FF6B35', fond: '#FFF1EC' },
+  en_cours: { label: 'En attente de confirmation', couleur: '#FF6B35', fond: '#FFF1EC' },
+  acceptee: { label: 'Acceptée', couleur: '#1A3A5C', fond: '#E9EEF3' },
+  en_preparation: { label: 'En préparation', couleur: '#1A3A5C', fond: '#E9EEF3' },
+  prete: { label: 'Prête à récupérer', couleur: '#0A5C36', fond: '#E8F5EE' },
+  en_livraison: { label: 'En livraison', couleur: '#0A5C36', fond: '#E8F5EE' },
+  livree: { label: 'Livrée', couleur: '#0A5C36', fond: '#E8F5EE' },
+  retiree: { label: 'Retirée', couleur: '#0A5C36', fond: '#E8F5EE' },
   annulee: { label: 'Annulée', couleur: '#6B7280', fond: '#F3F4F6' },
   refusee: { label: 'Refusée', couleur: '#DC2626', fond: '#FEE2E2' },
 };
 
 export const STATUTS_PHARMACIE = {
-  en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  active: { label: 'Certifiée', couleur: '#16A34A', fond: '#DCFCE7' },
+  en_attente: { label: 'En attente', couleur: '#FF6B35', fond: '#FFF1EC' },
+  active: { label: 'Certifiée', couleur: '#0A5C36', fond: '#E8F5EE' },
   refusee: { label: 'Refusée', couleur: '#DC2626', fond: '#FEE2E2' },
   suspendue: { label: 'Suspendue', couleur: '#6B7280', fond: '#F3F4F6' },
 };
 
+export const STATUTS_LIVRAISON = {
+  en_attente: { label: 'En attente', couleur: '#FF6B35', fond: '#FFF1EC' },
+  acceptee: { label: 'Acceptée', couleur: '#1A3A5C', fond: '#E9EEF3' },
+  recupere: { label: 'Récupérée', couleur: '#1A3A5C', fond: '#E9EEF3' },
+  en_cours: { label: 'En cours', couleur: '#1A3A5C', fond: '#E9EEF3' },
+  livree: { label: 'Livrée', couleur: '#0A5C36', fond: '#E8F5EE' },
+  refusee: { label: 'Refusée', couleur: '#DC2626', fond: '#FEE2E2' },
+};
+
 export const STATUTS_PAIEMENT = {
-  en_attente: { label: 'En attente', couleur: '#D97706', fond: '#FEF9C3' },
-  'complété': { label: 'Complété', couleur: '#16A34A', fond: '#DCFCE7' },
+  en_attente: { label: 'En attente', couleur: '#FF6B35', fond: '#FFF1EC' },
+  'complété': { label: 'Complété', couleur: '#0A5C36', fond: '#E8F5EE' },
   'échoué': { label: 'Échoué', couleur: '#DC2626', fond: '#FEE2E2' },
 };
 

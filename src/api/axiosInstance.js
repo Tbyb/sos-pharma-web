@@ -14,7 +14,8 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const estRequeteConnexion = error.config?.url?.includes('/auth/login');
+    if (error.response?.status === 401 && !estRequeteConnexion) {
       localStorage.removeItem('sos_pharma_token');
       localStorage.removeItem('sos_pharma_user');
       window.location.href = '/login';
