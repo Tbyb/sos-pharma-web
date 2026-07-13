@@ -154,9 +154,14 @@ export default function ModifierCommandePage() {
             ))}
           </div>
           <div className="border-t border-gris-bordure pt-3 mt-3 flex justify-between">
-            <span className="font-medium text-bleu-nuit">Total</span>
+            <span className="font-medium text-bleu-nuit">{mode === 'livraison' ? 'Sous-total médicaments' : 'Total'}</span>
             <span className="font-mono font-bold text-bleu-nuit">{formatMontant(total)}</span>
           </div>
+          {mode === 'livraison' && (
+            <p className="text-xs text-gris-doux italic mt-1">
+              + frais de livraison, recalculés selon l'adresse indiquée.
+            </p>
+          )}
         </Card>
 
         <Card className="mb-6">

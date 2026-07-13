@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { usePanier } from '../../contexts/PanierContext';
-import { useCreerCommande } from '../../hooks/useCommandes';
+import { useCreerCommande, useEstimerLivraison } from '../../hooks/useCommandes';
 import { useInitierPaiement } from '../../hooks/usePaiement';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import Button from '../../components/atoms/Button';
@@ -10,7 +10,7 @@ import Card from '../../components/atoms/Card';
 import FormInput from '../../components/atoms/FormInput';
 import { formatMontant } from '../../utils/formatters';
 import { geocoderInverse } from '../../utils/geo';
-import { MapPin, Truck, Store, Smartphone, CreditCard, LocateFixed } from 'lucide-react';
+import { MapPin, Truck, Store, Smartphone, CreditCard, LocateFixed, Loader2 } from 'lucide-react';
 
 const MODES_PAIEMENT = [
   { id: 'wave', nom: 'Wave', icone: Smartphone },
@@ -24,14 +24,42 @@ export default function CommandePage() {
   const navigate = useNavigate();
   const creerCommande = useCreerCommande();
   const initierPaiement = useInitierPaiement();
+  const estimerLivraison = useEstimerLivraison();
 
   const [mode, setMode] = useState('retrait');
   const [modePaiement, setModePaiement] = useState('wave');
   const [adresse, setAdresse] = useState('');
   const [loading, setLoading] = useState(false);
   const [chargementAdresse, setChargementAdresse] = useState(false);
+  const [fraisLivraison, setFraisLivraison] = useState(null);
 
   const { statut: statutGeoloc, demanderPosition } = useGeolocation();
+
+  // Estime le frais de livraison des que l'adresse est stable (debounce),
+  // pour l'afficher avant validation sans spammer le geocodage a chaque frappe.
+  // L'adresse trop courte / mode retrait n'annule pas activement l'estimation
+  // precedente : l'affichage se base sur adresseEstimable (derive plus bas),
+  // qui la masque simplement le temps qu'une nouvelle estimation arrive.
+  const adresseEstimable = mode === 'livraison' && adresse.trim().length >= 8 && !!pharmacieId;
+
+  useEffect(() => {
+    if (!adresseEstimable) return;
+
+    const timer = setTimeout(() => {
+      estimerLivraison.mutate(
+        { idPharmacie: pharmacieId, adresse_livraison: adresse.trim() },
+        {
+          onSuccess: (res) => setFraisLivraison(res.data?.frais_livraison ?? null),
+          onError: () => setFraisLivraison(null),
+        }
+      );
+    }, 700);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adresseEstimable, adresse, pharmacieId]);
+
+  const fraisAffiche = adresseEstimable ? fraisLivraison : null;
 
   const handleDemanderPosition = () => {
     demanderPosition({
@@ -74,7 +102,8 @@ export default function CommandePage() {
       }
 
       const resCommande = await creerCommande.mutateAsync(commandeData);
-      const commandeId = resCommande.data?.id || resCommande.id;
+      const commande = resCommande.data || resCommande;
+      const commandeId = commande.id;
 
       const resPaiement = await initierPaiement.mutateAsync({
         idCommande: commandeId,
@@ -90,7 +119,13 @@ export default function CommandePage() {
       }
 
       navigate(`/patient/paiement/${commandeId}`, {
-        state: { reference, montant: total, modePaiement },
+        state: {
+          reference,
+          modePaiement,
+          montant: commande.montant_total ?? total,
+          montantMedicaments: commande.montant_medicaments ?? total,
+          fraisLivraison: commande.frais_livraison ?? 0,
+        },
       });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Une erreur est survenue lors de la commande');
@@ -114,9 +149,32 @@ export default function CommandePage() {
               </div>
             ))}
             <div className="border-t border-gris-bordure pt-2 mt-2 flex justify-between">
-              <span className="font-medium text-bleu-nuit">Total</span>
+              <span className="font-medium text-bleu-nuit">{mode === 'livraison' ? 'Sous-total médicaments' : 'Total'}</span>
               <span className="font-mono font-bold text-bleu-nuit">{formatMontant(total)}</span>
             </div>
+
+            {mode === 'livraison' && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gris-doux flex items-center gap-1.5">
+                  Frais de livraison
+                  {estimerLivraison.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                </span>
+                {fraisAffiche !== null ? (
+                  <span className="font-mono font-medium text-bleu-nuit">{formatMontant(fraisAffiche)}</span>
+                ) : (
+                  <span className="text-gris-doux italic text-xs">
+                    {estimerLivraison.isPending ? 'calcul en cours…' : 'saisissez votre adresse'}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {mode === 'livraison' && fraisAffiche !== null && (
+              <div className="border-t border-gris-bordure pt-2 mt-1 flex justify-between">
+                <span className="font-medium text-bleu-nuit">Total estimé</span>
+                <span className="font-mono font-bold text-bleu-nuit">{formatMontant(total + fraisAffiche)}</span>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -196,7 +254,9 @@ export default function CommandePage() {
           loading={loading}
           className="w-full justify-center"
         >
-          Valider la commande — {formatMontant(total)}
+          {mode === 'livraison'
+            ? (fraisAffiche !== null ? `Valider la commande — ${formatMontant(total + fraisAffiche)}` : 'Valider la commande')
+            : `Valider la commande — ${formatMontant(total)}`}
         </Button>
       </div>
     </div>

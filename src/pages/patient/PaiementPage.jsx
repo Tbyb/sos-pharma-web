@@ -15,7 +15,7 @@ export default function PaiementPage() {
   const { viderPanier } = usePanier();
   const confirmerPaiement = useConfirmerPaiement();
 
-  const { reference, montant, modePaiement = 'wave' } = location.state || {};
+  const { reference, montant, montantMedicaments, fraisLivraison = 0, modePaiement = 'wave' } = location.state || {};
   const nomPaiement = MODES_PAIEMENT[modePaiement] || modePaiement;
   const [etape, setEtape] = useState('attente');
   const [erreur, setErreur] = useState('');
@@ -97,6 +97,18 @@ export default function PaiementPage() {
           </div>
 
           <div className="border-t border-gris-bordure pt-4 space-y-2 text-sm">
+            {fraisLivraison > 0 && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gris-doux">Médicaments</span>
+                  <span className="font-mono text-bleu-nuit">{formatMontant(montantMedicaments)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gris-doux">Frais de livraison</span>
+                  <span className="font-mono text-bleu-nuit">{formatMontant(fraisLivraison)}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between">
               <span className="text-gris-doux">Commande</span>
               <span className="font-medium text-bleu-nuit">#{id}</span>
