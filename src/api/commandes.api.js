@@ -4,6 +4,10 @@ export function creerCommandeAPI(data) {
   return axiosInstance.post('/commandes', data);
 }
 
+export function estimerFraisLivraisonAPI(data) {
+  return axiosInstance.post('/commandes/estimation-livraison', data);
+}
+
 export function getMesCommandesAPI(params = {}) {
   return axiosInstance.get('/mes-commandes', { params });
 }

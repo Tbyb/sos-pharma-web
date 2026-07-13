@@ -96,16 +96,29 @@ export default function CommandeDetailPage() {
                 }
               </p>
             </div>
-            {commande.adresse_livraison && (
+            {commande.livraison?.adresse && (
               <div>
                 <p className="text-gris-doux">Adresse</p>
                 <p className="font-medium text-bleu-nuit flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {commande.adresse_livraison}
+                  {commande.livraison.adresse}
                 </p>
               </div>
             )}
           </div>
+
+          {commande.frais_livraison > 0 && (
+            <div className="border-t border-gris-bordure mt-4 pt-4 space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gris-doux">Sous-total médicaments</span>
+                <span className="font-mono text-bleu-nuit">{formatMontant(commande.montant_medicaments)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gris-doux">Frais de livraison</span>
+                <span className="font-mono text-bleu-nuit">{formatMontant(commande.frais_livraison)}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] p-6 mb-4">

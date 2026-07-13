@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   creerCommandeAPI,
+  estimerFraisLivraisonAPI,
   getMesCommandesAPI,
   getCommandeDetailAPI,
   annulerCommandeAPI,
@@ -36,6 +37,12 @@ export function useCreerCommande() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mes-commandes'] });
     },
+  });
+}
+
+export function useEstimerLivraison() {
+  return useMutation({
+    mutationFn: (data) => estimerFraisLivraisonAPI(data).then((res) => res.data),
   });
 }
 

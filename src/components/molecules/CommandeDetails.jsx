@@ -46,6 +46,19 @@ export default function CommandeDetails({ commande }) {
         </div>
       </div>
 
+      {commande.frais_livraison > 0 && (
+        <div className="text-sm space-y-1.5 -mt-1">
+          <div className="flex justify-between">
+            <span className="text-gris-doux">Sous-total médicaments</span>
+            <span className="font-mono text-bleu-nuit">{formatMontant(commande.montant_medicaments)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gris-doux">Frais de livraison</span>
+            <span className="font-mono text-bleu-nuit">{formatMontant(commande.frais_livraison)}</span>
+          </div>
+        </div>
+      )}
+
       <div>
         <p className="text-sm font-medium text-bleu-nuit mb-2">Médicaments</p>
         <div className="overflow-x-auto rounded-[8px] border border-gris-bordure">
