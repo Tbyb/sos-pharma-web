@@ -11,13 +11,13 @@ import Pagination from '../../components/atoms/Pagination';
 import { PHARMACIE_ACTIONS } from '../../utils/pharmacieActions';
 
 const ONGLETS = [
-  { value: 'en_attente', label: 'En attente' },
   { value: 'active', label: 'Certifiées' },
+  { value: 'en_attente', label: 'En attente' },
   { value: 'suspendue', label: 'Suspendues' },
 ];
 
 export default function PharmaciesPage() {
-  const [onglet, setOnglet] = useState('en_attente');
+  const [onglet, setOnglet] = useState('active');
   const [page, setPage] = useState(1);
   const [confirmation, setConfirmation] = useState(null);
   const [motif, setMotif] = useState('');
