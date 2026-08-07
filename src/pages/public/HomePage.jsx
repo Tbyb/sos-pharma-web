@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Pill, Wallet, Store, ShieldCheck } from 'lucide-react';
+import { Search, Pill, Wallet, Store, ShieldCheck, ArrowRight, BadgeCheck, MapPinned, Sparkles } from 'lucide-react';
+import { useMedicaments } from '../../hooks/useMedicaments';
+import { usePharmacies } from '../../hooks/usePharmacies';
+import MedicamentCard from '../../components/molecules/MedicamentCard';
+import Skeleton from '../../components/atoms/Skeleton';
+import heroAccueil from '../../assets/Accueil.png';
 
 const ETAPES = [
   {
     icon: Pill,
     titre: 'Recherchez',
-    description: 'Trouvez votre médicament parmi les pharmacies certifiées de Dakar.',
+    description: 'Indiquez le médicament recherché : on repère les pharmacies certifiées qui l\'ont en stock près de chez vous.',
   },
   {
     icon: Wallet,
@@ -29,22 +34,45 @@ export default function HomePage() {
   const [recherche, setRecherche] = useState('');
   const navigate = useNavigate();
 
+  const { data: medicamentsData, isLoading: chargementMedicaments } = useMedicaments();
+  const { data: pharmaciesData, isLoading: chargementPharmacies } = usePharmacies();
+
+  const medicamentsPopulaires = (medicamentsData?.data || []).slice(0, 4);
+  const suggestions = medicamentsPopulaires.slice(0, 3).map((m) => m.designation);
+  const nbPharmacies = pharmaciesData?.data?.length ?? pharmaciesData?.length ?? 0;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const q = recherche.trim();
     navigate(q ? `/medicaments?search=${encodeURIComponent(q)}` : '/medicaments');
   };
 
+  const handleSuggestion = (nom) => {
+    navigate(`/medicaments?search=${encodeURIComponent(nom)}`);
+  };
+
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blanc-casse to-vert-menthe px-4 py-20 md:py-28">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="relative overflow-hidden bg-gradient-to-b from-blanc-casse to-vert-menthe px-4 py-20 md:py-28">
+        <img
+          src={heroAccueil}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 w-full h-full object-cover"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse 75% 80% at center, #F7FAFC 0%, rgba(247,250,252,0.9) 38%, rgba(232,245,238,0.55) 70%, rgba(232,245,238,0.25) 100%)',
+          }}
+        />
+        <div className="relative max-w-3xl mx-auto text-center">
           <h1 className="font-display text-4xl md:text-[52px] leading-tight text-bleu-nuit mb-4">
-            Trouvez vos médicaments au meilleur prix
+            Vos médicaments, au bon prix, près de chez vous
           </h1>
           <p className="text-gris-doux text-lg mb-10 max-w-xl mx-auto">
-            Comparez les prix dans les pharmacies certifiées de Dakar, en quelques secondes.
+            Recherchez un médicament, comparez les prix entre pharmacies certifiées et localisez en quelques secondes celle la plus proche de vous à Dakar.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
@@ -65,8 +93,55 @@ export default function HomePage() {
               Rechercher
             </button>
           </form>
+
+          {suggestions.length > 0 && (
+            <div className="flex items-center justify-center flex-wrap gap-2 mt-4 text-sm">
+              <span className="text-gris-doux">Populaire :</span>
+              {suggestions.map((nom) => (
+                <button
+                  key={nom}
+                  onClick={() => handleSuggestion(nom)}
+                  className="px-3 py-1 rounded-full bg-white/70 hover:bg-white text-bleu-nuit border border-gris-bordure transition-colors duration-200 cursor-pointer"
+                >
+                  {nom}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Médicaments populaires */}
+      {(chargementMedicaments || medicamentsPopulaires.length > 0) && (
+        <section className="max-w-6xl mx-auto px-4 pt-16">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="font-display text-3xl text-bleu-nuit">Médicaments populaires</h2>
+              <p className="text-gris-doux mt-1">Les produits les plus recherchés en ce moment.</p>
+            </div>
+            <button
+              onClick={() => navigate('/medicaments')}
+              className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-vert-medical hover:text-vert-profond transition-colors duration-200 shrink-0"
+            >
+              Voir tout <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {chargementMedicaments ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} variant="card" height="300px" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {medicamentsPopulaires.map((med) => (
+                <MedicamentCard key={med.id} medicament={med} />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Comment ça marche */}
       <section className="max-w-6xl mx-auto px-4 py-20">
@@ -90,17 +165,27 @@ export default function HomePage() {
       {/* CTA pharmacies */}
       <section className="bg-vert-profond px-4 py-14">
         <div className="max-w-4xl mx-auto text-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-vert-menthe text-xs font-medium uppercase tracking-wide mb-4">
+            <ShieldCheck className="w-3.5 h-3.5" /> Réseau certifié
+          </span>
           <h2 className="font-display text-2xl md:text-3xl text-white mb-3">
-            Trouvez la pharmacie la plus proche
+            {chargementPharmacies ? 'Trouvez la pharmacie la plus proche' : `${nbPharmacies} pharmacie${nbPharmacies > 1 ? 's' : ''} certifiée${nbPharmacies > 1 ? 's' : ''} à Dakar`}
           </h2>
-          <p className="text-white/80 mb-8">
-            Localisez les pharmacies certifiées autour de vous et vérifiez leurs horaires.
+          <p className="text-white/80 mb-6 max-w-lg mx-auto">
+            Nous ne collaborons qu'avec des officines agréées, pour garantir l'authenticité de vos médicaments.
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-8 text-sm text-white/90">
+            <span className="flex items-center gap-1.5"><BadgeCheck className="w-4 h-4 text-vert-menthe" /> Disponibilité en temps réel</span>
+            <span className="flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-vert-menthe" /> Prix transparents</span>
+            <span className="flex items-center gap-1.5"><MapPinned className="w-4 h-4 text-vert-menthe" /> Localisation GPS précise</span>
+          </div>
+
           <button
             onClick={() => navigate('/pharmacies')}
             className="px-8 py-3.5 rounded-[6px] bg-white text-vert-profond font-medium hover:bg-vert-menthe transition-colors duration-200"
           >
-            Voir les pharmacies
+            Explorer la carte
           </button>
         </div>
       </section>
