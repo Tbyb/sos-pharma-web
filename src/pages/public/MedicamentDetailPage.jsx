@@ -9,7 +9,7 @@ import PrixComparaisonTable from '../../components/molecules/PrixComparaisonTabl
 import Spinner from '../../components/atoms/Spinner';
 import Modal from '../../components/atoms/Modal';
 import { Pill, LocateFixed } from 'lucide-react';
-import { formatMontant } from '../../utils/formatters';
+import DisponibiliteBadge from '../../components/atoms/DisponibiliteBadge';
 
 export default function MedicamentDetailPage() {
   const { id } = useParams();
@@ -61,6 +61,14 @@ export default function MedicamentDetailPage() {
     return trier ? [...items].sort(trier) : items;
   }, [medicament, tri, disponibleUniquement, position]);
 
+  // Y a-t-il au moins une pharmacie où ce médicament est disponible ? Utilisé pour le
+  // badge de disponibilité de l'en-tête (l'ajout au panier se fait depuis chaque ligne
+  // de pharmacie ci-dessous, où le prix réel est connu).
+  const disponible = useMemo(
+    () => (medicament?.stocks || []).some((s) => s.disponible === 1 || s.disponible === true),
+    [medicament]
+  );
+
   if (isLoading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
   }
@@ -85,22 +93,32 @@ export default function MedicamentDetailPage() {
     <div className="min-h-screen bg-blanc-casse">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-[8px] border border-gris-bordure shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.06)] p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-vert-menthe rounded-[8px] flex items-center justify-center shrink-0">
-              <Pill className="w-7 h-7 text-vert-profond" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-bleu-nuit">{medicament.designation}</h1>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-gris-doux">
-                {medicament.CIP && <span className="font-mono">CIP : {medicament.CIP}</span>}
-                {medicament.forme && <span>Forme : {medicament.forme}</span>}
-                {medicament.liste && <span>Liste : {medicament.liste}</span>}
-                {medicament.TVA && <span>TVA : {medicament.TVA}%</span>}
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            <div className="relative w-full sm:w-48 aspect-square rounded-[10px] overflow-hidden shrink-0 border border-gris-bordure">
+              {medicament.photo_url ? (
+                <img
+                  src={medicament.photo_url}
+                  alt={medicament.designation}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-vert-menthe">
+                  <Pill className="w-14 h-14 text-vert-profond" />
+                </div>
+              )}
+              <div className="absolute top-3 right-3">
+                <DisponibiliteBadge disponible={disponible} />
               </div>
-              {medicament.prix_de_vente && (
-                <p className="mt-2 text-sm text-bleu-nuit">
-                  Prix public : <span className="font-mono font-semibold">{formatMontant(parseFloat(medicament.prix_de_vente))}</span>
-                </p>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              {medicament.categorie && (
+                <p className="text-xs font-semibold text-vert-medical uppercase tracking-wide mb-1">{medicament.categorie}</p>
+              )}
+              <h1 className="font-display text-2xl text-bleu-nuit">{medicament.designation}</h1>
+
+              {medicament.description && (
+                <p className="text-sm text-gris-doux mt-3 leading-relaxed">{medicament.description}</p>
               )}
             </div>
           </div>

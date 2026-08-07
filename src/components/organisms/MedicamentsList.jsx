@@ -8,9 +8,9 @@ import Skeleton from '../atoms/Skeleton';
 export default function MedicamentsList({ medicaments = [], isLoading, currentPage, totalPages, onPageChange }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} variant="card" height="140px" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} variant="card" height="300px" />
         ))}
       </div>
     );
@@ -22,7 +22,7 @@ export default function MedicamentsList({ medicaments = [], isLoading, currentPa
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {medicaments.map((med) => (
           <MedicamentCard key={med.id} medicament={med} />
         ))}
