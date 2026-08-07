@@ -130,7 +130,8 @@ export default function PublicLayout() {
       </main>
 
       <footer className="bg-white border-t border-gris-bordure py-6 text-center text-sm text-gris-doux">
-        © 2026 SOS-Pharma. Tous droits réservés.
+        <p className="mb-1">Recherchez, comparez les prix et localisez la pharmacie certifiée la plus proche de vous à Dakar.</p>
+        <p>© 2026 SOS-Pharma. Tous droits réservés.</p>
       </footer>
 
       <Chatbot />

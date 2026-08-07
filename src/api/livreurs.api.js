@@ -1,5 +1,9 @@
 import axiosInstance from './axiosInstance';
 
+export function creerLivreurAPI(data) {
+  return axiosInstance.post('/livreurs', data);
+}
+
 export function getLivreursAPI() {
   return axiosInstance.get('/livreurs');
 }

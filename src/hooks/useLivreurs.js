@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getLivreursAPI, getLivreurAPI, getLivreurMissionsAPI,
+  creerLivreurAPI, getLivreursAPI, getLivreurAPI, getLivreurMissionsAPI,
   suspendreLivreurAPI, reactiverLivreurAPI,
 } from '../api/livreurs.api';
 
@@ -8,6 +8,14 @@ export function useLivreurs() {
   return useQuery({
     queryKey: ['livreurs'],
     queryFn: () => getLivreursAPI().then((res) => res.data),
+  });
+}
+
+export function useCreerLivreur() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => creerLivreurAPI(data).then((res) => res.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['livreurs'] }),
   });
 }
 

@@ -20,8 +20,11 @@ const PharmaciesMapPage = lazy(() => import('../pages/public/PharmaciesMapPage')
 const PanierPage = lazy(() => import('../pages/patient/PanierPage'));
 const CommandePage = lazy(() => import('../pages/patient/CommandePage'));
 const PaiementPage = lazy(() => import('../pages/patient/PaiementPage'));
+const PaiementSuccesPage = lazy(() => import('../pages/patient/PaiementSuccesPage'));
+const PaiementEchecPage = lazy(() => import('../pages/patient/PaiementEchecPage'));
 const MesCommandesPage = lazy(() => import('../pages/patient/MesCommandesPage'));
 const CommandeDetailPage = lazy(() => import('../pages/patient/CommandeDetailPage'));
+const TicketPaiementPage = lazy(() => import('../pages/patient/TicketPaiementPage'));
 const ModifierCommandePage = lazy(() => import('../pages/patient/ModifierCommandePage'));
 const ProfilPage = lazy(() => import('../pages/patient/ProfilPage'));
 
@@ -32,11 +35,13 @@ const PharmacieDetailPage = lazy(() => import('../pages/admin/PharmacieDetailPag
 const CommandesPage = lazy(() => import('../pages/admin/CommandesPage'));
 const LivreursPage = lazy(() => import('../pages/admin/LivreursPage'));
 const TransactionsPage = lazy(() => import('../pages/admin/TransactionsPage'));
+const ProfilAdminPage = lazy(() => import('../pages/admin/ProfilPage'));
 
 const CataloguePage = lazy(() => import('../pages/pharmacien/CataloguePage'));
 const CommandesPharmaciePage = lazy(() => import('../pages/pharmacien/CommandesPharmaciePage'));
 const MaPharmaciePage = lazy(() => import('../pages/pharmacien/MaPharmaciePage'));
 const DashboardPharmacienPage = lazy(() => import('../pages/pharmacien/DashboardPage'));
+const ProfilPharmacienPage = lazy(() => import('../pages/pharmacien/ProfilPage'));
 
 function ChargementPage() {
   return (
@@ -68,8 +73,11 @@ export default function AppRouter() {
             <Route path="/patient/panier" element={<PanierPage />} />
             <Route path="/patient/commander" element={<CommandePage />} />
             <Route path="/patient/paiement/:id" element={<PaiementPage />} />
+            <Route path="/patient/paiement/succes" element={<PaiementSuccesPage />} />
+            <Route path="/patient/paiement/echec" element={<PaiementEchecPage />} />
             <Route path="/patient/commandes" element={<MesCommandesPage />} />
             <Route path="/patient/commandes/:id" element={<CommandeDetailPage />} />
+            <Route path="/patient/commandes/:id/ticket" element={<TicketPaiementPage />} />
             <Route path="/patient/commandes/:id/modifier" element={<ModifierCommandePage />} />
             <Route path="/patient/profil" element={<ProfilPage />} />
           </Route>
@@ -85,6 +93,7 @@ export default function AppRouter() {
             <Route path="/admin/livreurs" element={<LivreursPage />} />
             <Route path="/admin/commandes" element={<CommandesPage />} />
             <Route path="/admin/transactions" element={<TransactionsPage />} />
+            <Route path="/admin/profil" element={<ProfilAdminPage />} />
           </Route>
         </Route>
 
@@ -95,6 +104,7 @@ export default function AppRouter() {
             <Route path="/pharmacien/catalogue" element={<CataloguePage />} />
             <Route path="/pharmacien/commandes" element={<CommandesPharmaciePage />} />
             <Route path="/pharmacien/pharmacie" element={<MaPharmaciePage />} />
+            <Route path="/pharmacien/profil" element={<ProfilPharmacienPage />} />
           </Route>
         </Route>
 

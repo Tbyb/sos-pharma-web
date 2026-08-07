@@ -123,8 +123,8 @@ function RechercheReferentiel({ onSubmit, onCancel, loading }) {
 
 function NouveauMedicament({ onSubmit, onCancel, loading }) {
   const [form, setForm] = useState({
-    designation: '', CIP: '', prix_de_vente: '', liste: LISTES[0], TVA: TAUX_TVA[0],
-    quantite: '', prix_unitaire: '',
+    designation: '', categorie: '', CIP: '', prix_de_vente: '', liste: LISTES[0], TVA: TAUX_TVA[0],
+    description: '', quantite: '', prix_unitaire: '',
   });
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -138,6 +138,13 @@ function NouveauMedicament({ onSubmit, onCancel, loading }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <p className="text-xs text-gris-doux -mt-1">Ce médicament sera ajouté au référentiel général, puis à votre catalogue.</p>
       <FormInput label="Désignation" name="designation" value={form.designation} onChange={handleChange} required />
+      <FormInput
+        label="Catégorie (optionnel)"
+        name="categorie"
+        placeholder="Ex : Antalgique, Antibiotique..."
+        value={form.categorie}
+        onChange={handleChange}
+      />
       <FormInput label="Code CIP" name="CIP" value={form.CIP} onChange={handleChange} required />
       <FormInput label="Prix de vente référentiel (FCFA)" name="prix_de_vente" type="number" min="0" step="0.01" value={form.prix_de_vente} onChange={handleChange} required />
 
@@ -164,6 +171,18 @@ function NouveauMedicament({ onSubmit, onCancel, loading }) {
             {TAUX_TVA.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-bleu-nuit mb-1.5">Description (optionnel)</label>
+        <textarea
+          name="description"
+          rows={3}
+          placeholder="Indication, usage... affiché sur la fiche publique du médicament."
+          value={form.description}
+          onChange={handleChange}
+          className="w-full rounded-[8px] border border-gris-bordure px-4 py-3 text-sm text-bleu-nuit placeholder:text-gris-doux outline-none focus:border-vert-medical focus:ring-2 focus:ring-vert-medical/20 transition-colors duration-200 resize-none"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

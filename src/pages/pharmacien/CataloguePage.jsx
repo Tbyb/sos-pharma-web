@@ -3,10 +3,11 @@ import toast from 'react-hot-toast';
 import { Plus, Upload } from 'lucide-react';
 import {
   useCatalogue, useAjouterMedicament, useModifierCatalogue,
-  useToggleDisponibilite, useRetirerCatalogue, useImporterCatalogue,
+  useToggleDisponibilite, useRetirerCatalogue, useImporterCatalogue, useApercuImportCatalogue,
 } from '../../hooks/useCatalogue';
 import CatalogueTable from '../../components/organisms/CatalogueTable';
 import AjouterMedicamentForm from '../../components/molecules/AjouterMedicamentForm';
+import ImportApercuModal from '../../components/molecules/ImportApercuModal';
 import Button from '../../components/atoms/Button';
 import Modal from '../../components/atoms/Modal';
 import ConfirmDialog from '../../components/molecules/ConfirmDialog';
@@ -16,6 +17,7 @@ export default function CataloguePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [stockARetirer, setStockARetirer] = useState(null);
   const [message, setMessage] = useState(null);
+  const [fichierAImporter, setFichierAImporter] = useState(null);
   const fileInputRef = useRef(null);
 
   const { data, isLoading, isError, error } = useCatalogue();
@@ -24,6 +26,7 @@ export default function CataloguePage() {
   const toggleDispo = useToggleDisponibilite();
   const retirer = useRetirerCatalogue();
   const importer = useImporterCatalogue();
+  const apercu = useApercuImportCatalogue();
 
   const catalogue = data?.data || [];
 
@@ -66,14 +69,32 @@ export default function CataloguePage() {
     e.target.value = '';
     if (!fichier) return;
 
-    importer.mutate(fichier, {
+    setFichierAImporter(fichier);
+    apercu.mutate(fichier, {
+      onError: (err) => {
+        toast.error(err.response?.data?.message || "Erreur lors de l'analyse du fichier.");
+        setFichierAImporter(null);
+      },
+    });
+  };
+
+  const fermerApercu = () => {
+    setFichierAImporter(null);
+    apercu.reset();
+  };
+
+  const confirmerImport = () => {
+    if (!fichierAImporter) return;
+    importer.mutate(fichierAImporter, {
       onSuccess: (res) => {
-        const { importes = 0, erreurs = [] } = res?.data || {};
+        const { importes = 0 } = res?.data || {};
+        // Les alertes/erreurs ont déjà été montrées dans l'aperçu avant confirmation :
+        // pas besoin de les répéter ici, un simple message de confirmation suffit.
         setMessage({
-          type: erreurs.length ? 'warning' : 'success',
-          text: `${importes} médicament(s) importé(s) dans le catalogue.`,
-          details: erreurs,
+          type: 'success',
+          text: `Import confirmé : ${importes} médicament(s) importé(s) dans le catalogue.`,
         });
+        fermerApercu();
       },
       onError: (err) => toast.error(err.response?.data?.message || "Erreur lors de l'import."),
     });
@@ -84,7 +105,7 @@ export default function CataloguePage() {
       <div className="flex items-center justify-end mb-6 flex-wrap gap-2">
         <div className="flex gap-2">
           <input ref={fileInputRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={handleFileChange} />
-          <Button variant="outline" onClick={handleImportClick} loading={importer.isPending}>
+          <Button variant="outline" onClick={handleImportClick} loading={apercu.isPending}>
             <Upload className="w-4 h-4" /> Importer CSV
           </Button>
           <Button onClick={() => setModalOpen(true)}>
@@ -95,12 +116,7 @@ export default function CataloguePage() {
 
       {message && (
         <Alert variant={message.type} className="mb-4">
-          <p>{message.text}</p>
-          {message.details?.length > 0 && (
-            <ul className="list-disc list-inside mt-1 space-y-0.5">
-              {message.details.map((detail, i) => <li key={i}>{detail}</li>)}
-            </ul>
-          )}
+          {message.text}
         </Alert>
       )}
       {isError && (
@@ -126,6 +142,15 @@ export default function CataloguePage() {
           loading={ajouter.isPending}
         />
       </Modal>
+
+      <ImportApercuModal
+        open={!!fichierAImporter}
+        onClose={fermerApercu}
+        onConfirmer={confirmerImport}
+        apercu={apercu.data?.data}
+        loading={apercu.isPending}
+        confirming={importer.isPending}
+      />
 
       <ConfirmDialog
         open={!!stockARetirer}

@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import LoginForm from '../../components/molecules/LoginForm';
 import { ShieldPlus, Pill, MapPin, Truck, BadgeCheck } from 'lucide-react';
+import authConnexion from '../../assets/connexion.png';
 
 const ATOUTS = [
   { icon: Pill, texte: 'Comparez les prix d\'un médicament entre plusieurs pharmacies en un coup d\'œil.' },
@@ -16,13 +17,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Colonne gauche — identité (desktop uniquement) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-vert-profond flex-col justify-between p-12">
-        <Link to="/" className="flex items-center gap-2 text-white font-medium text-lg">
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden">
+        <img src={authConnexion} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-vert-profond/95 via-vert-profond/85 to-vert-profond/95" />
+
+        <Link to="/" className="relative z-10 flex items-center gap-2 text-white font-medium text-lg">
           <ShieldPlus className="w-6 h-6" />
           SOS-Pharma
         </Link>
 
-        <div>
+        <div className="relative z-10">
           <p className="font-display text-white text-4xl leading-snug mb-4">
             La santé accessible,
             <br />
@@ -44,7 +48,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <blockquote className="border-l-2 border-white/30 pl-4">
+        <blockquote className="relative z-10 border-l-2 border-white/30 pl-4">
           <p className="text-white/80 text-sm italic">
             « La santé est un droit fondamental de tout être humain. »
           </p>

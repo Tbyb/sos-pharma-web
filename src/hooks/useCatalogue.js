@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getCatalogueAPI, ajouterMedicamentCatalogueAPI, modifierCatalogueAPI,
-  toggleDisponibiliteAPI, retirerCatalogueAPI, importerCatalogueAPI,
+  toggleDisponibiliteAPI, retirerCatalogueAPI, importerCatalogueAPI, apercuImportCatalogueAPI,
 } from '../api/catalogue.api';
 
 export function useCatalogue() {
@@ -37,4 +37,11 @@ export function useRetirerCatalogue() {
 
 export function useImporterCatalogue() {
   return useCatalogueMutation((fichier) => importerCatalogueAPI(fichier).then((res) => res.data));
+}
+
+// Prévisualisation : ne modifie rien côté serveur, donc pas besoin d'invalider le cache.
+export function useApercuImportCatalogue() {
+  return useMutation({
+    mutationFn: (fichier) => apercuImportCatalogueAPI(fichier).then((res) => res.data),
+  });
 }

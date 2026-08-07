@@ -11,6 +11,7 @@ const pageTitles = {
   '/admin/livreurs': 'Gestion Livreurs',
   '/admin/commandes': 'Commandes',
   '/admin/transactions': 'Transactions',
+  '/admin/profil': 'Mon profil',
 };
 
 export default function AdminLayout() {

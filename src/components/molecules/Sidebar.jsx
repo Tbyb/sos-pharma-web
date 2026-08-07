@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   LayoutDashboard, Pill, Store, Truck, Package,
@@ -26,6 +26,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed })
   const navigate = useNavigate();
   const estAdmin = isAdmin();
   const links = estAdmin ? adminLinks : pharmacienLinks;
+  const profilPath = estAdmin ? '/admin/profil' : '/pharmacien/profil';
   // DESIGN.md : sidebar admin = vert profond, sidebar pharmacien = bleu nuit
   const fond = estAdmin ? 'bg-vert-profond' : 'bg-bleu-nuit';
 
@@ -94,7 +95,12 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed })
         )}
 
         <div className="p-4 border-t border-white/20">
-          <div className={`flex items-center gap-3 mb-3 px-2 ${collapsed ? 'lg:justify-center lg:px-0' : ''}`}>
+          <Link
+            to={profilPath}
+            onClick={onClose}
+            title="Voir mon profil"
+            className={`flex items-center gap-3 mb-3 px-2 py-1.5 -mx-2 rounded-[6px] hover:bg-white/10 transition-colors duration-200 ${collapsed ? 'lg:justify-center lg:px-0 lg:mx-0' : ''}`}
+          >
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-xs font-medium shrink-0">
               {user?.prenom?.[0]}{user?.nom?.[0]}
             </div>
@@ -102,7 +108,7 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed })
               <p className="font-medium">{user?.prenom} {user?.nom}</p>
               <p className="text-white/60 text-xs">{estAdmin ? 'Administrateur' : 'Pharmacien'}</p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={handleLogout}
             title={collapsed ? 'Déconnexion' : undefined}

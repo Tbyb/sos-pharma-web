@@ -1,9 +1,14 @@
 import { X } from 'lucide-react';
 
+const tailles = {
+  md: 'max-w-lg',
+  xl: 'max-w-3xl',
+};
+
 /**
- * @param {{ open: boolean, onClose: () => void, title?: string, children: React.ReactNode, footer?: React.ReactNode }} props
+ * @param {{ open: boolean, onClose: () => void, title?: string, children: React.ReactNode, footer?: React.ReactNode, size?: 'md'|'xl' }} props
  */
-export default function Modal({ open, onClose, title, children, footer }) {
+export default function Modal({ open, onClose, title, children, footer, size = 'md' }) {
   if (!open) return null;
 
   return (
@@ -12,7 +17,7 @@ export default function Modal({ open, onClose, title, children, footer }) {
         className="fixed inset-0 bg-black/50 animate-[fade-in_0.15s_ease-out]"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-lg mx-4 max-h-[90vh] flex flex-col animate-[scale-in_0.15s_ease-out]">
+      <div className={`relative bg-white rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full ${tailles[size]} mx-4 max-h-[90vh] flex flex-col animate-[scale-in_0.15s_ease-out]`}>
         {title && (
           <div className="flex items-center justify-between p-4 border-b border-gris-bordure">
             <h3 className="text-lg font-medium text-bleu-nuit">{title}</h3>

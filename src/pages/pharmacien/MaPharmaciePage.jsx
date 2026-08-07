@@ -46,10 +46,13 @@ function InfosPharmacie({ pharmacie }) {
     numTel: pharmacie.numTel || '',
     latitude: pharmacie.latitude || '',
     longitude: pharmacie.longitude || '',
+    ouvert_24h: pharmacie.ouvert_24h || false,
+    horaires: pharmacie.horaires || '',
   });
   const statut = STATUTS_PHARMACIE[pharmacie.statut] || { label: pharmacie.statut, couleur: '#6B7280', fond: '#F3F4F6' };
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const handleToggleOuvert24h = (e) => setForm((f) => ({ ...f, ouvert_24h: e.target.checked }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +88,26 @@ function InfosPharmacie({ pharmacie }) {
           <FormInput label="Nom de la pharmacie" name="nomPharmacie" value={form.nomPharmacie} onChange={handleChange} />
           <FormInput label="Adresse" name="addresse" value={form.addresse} onChange={handleChange} />
           <FormInput label="Téléphone" name="numTel" value={form.numTel} onChange={handleChange} />
+
+          <label className="flex items-center gap-2 text-sm text-bleu-nuit cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.ouvert_24h}
+              onChange={handleToggleOuvert24h}
+              className="cursor-pointer accent-vert-medical"
+            />
+            Ouvert 24h/24
+          </label>
+
+          <FormInput
+            label="Horaires (optionnel)"
+            name="horaires"
+            placeholder="Ex : Lun-Sam 8h-22h, Dim 9h-13h"
+            value={form.horaires}
+            onChange={handleChange}
+            disabled={form.ouvert_24h}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <FormInput label="Latitude" name="latitude" type="number" step="any" value={form.latitude} onChange={handleChange} />
             <FormInput label="Longitude" name="longitude" type="number" step="any" value={form.longitude} onChange={handleChange} />

@@ -40,6 +40,10 @@ export function getCommandesPharmacieAPI(params = {}) {
   return axiosInstance.get('/commandes', { params });
 }
 
+export function getCommandePharmacieDetailAPI(id) {
+  return axiosInstance.get(`/commandes/${id}/details`);
+}
+
 export function accepterCommandeAPI(id) {
   return axiosInstance.put(`/commandes/${id}/accepter`);
 }

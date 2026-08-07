@@ -15,6 +15,7 @@ const pageTitles = {
   '/pharmacien/catalogue': 'Mon Catalogue',
   '/pharmacien/commandes': 'Mes Commandes',
   '/pharmacien/pharmacie': 'Ma Pharmacie',
+  '/pharmacien/profil': 'Mon profil',
 };
 
 export default function PharmacienLayout() {

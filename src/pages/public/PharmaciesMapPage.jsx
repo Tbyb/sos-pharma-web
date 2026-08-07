@@ -5,9 +5,15 @@ import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import PharmacieCard from '../../components/molecules/PharmacieCard';
 import Spinner from '../../components/atoms/Spinner';
+import Badge from '../../components/atoms/Badge';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Navigation, X, Car, Footprints } from 'lucide-react';
+import { Navigation, X, Car, Footprints, Clock } from 'lucide-react';
+import { calculerDistanceKm, formatDistanceKm } from '../../utils/geo';
+import { STATUTS_PHARMACIE } from '../../utils/constants';
+
+// Vitesse de marche moyenne utilisée pour estimer la durée à pied (voir handleItineraire).
+const VITESSE_MARCHE_MPS = 1.4; // ≈ 5 km/h
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -178,13 +184,19 @@ export default function PharmaciesMapPage() {
     };
   }, [watchId]);
 
-  const fetchRoute = async (pharma, mode) => {
+  // Le serveur public OSRM (router.project-osrm.org) ne calcule en réalité que des
+  // itinéraires routiers (voiture) : lui demander le profil "foot" renvoie exactement
+  // la même réponse que "driving" (vérifié). Un vrai routage piéton nécessiterait un
+  // service dédié (ex. OpenRouteService, avec clé API). En attendant, on récupère
+  // uniquement l'itinéraire voiture et on estime la marche à partir de cette même
+  // distance à une vitesse de marche moyenne — ça reste une estimation, mais au moins
+  // cohérente (différente de la voiture, proportionnelle à la distance réelle).
+  const fetchRoute = async (pharma) => {
     if (!userPos) return null;
     const destLat = parseFloat(pharma.latitude);
     const destLng = parseFloat(pharma.longitude);
-    const profile = mode === 'foot' ? 'foot' : 'car';
     const res = await fetch(
-      `https://router.project-osrm.org/route/v1/${profile}/${userPos[1]},${userPos[0]};${destLng},${destLat}?overview=full&geometries=geojson`
+      `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${destLng},${destLat}?overview=full&geometries=geojson`
     );
     const json = await res.json();
     if (json.routes && json.routes.length > 0) {
@@ -205,14 +217,17 @@ export default function PharmaciesMapPage() {
     }
     setLoadingRoute(true);
     try {
-      const [driving, foot] = await Promise.all([
-        fetchRoute(pharma, 'driving'),
-        fetchRoute(pharma, 'foot'),
-      ]);
-      if (driving || foot) {
-        const active = driving || foot;
+      const driving = await fetchRoute(pharma);
+      if (driving) {
+        const foot = {
+          coords: driving.coords,
+          distance: driving.distance,
+          duration: driving.distance / VITESSE_MARCHE_MPS,
+        };
         setSelectedMode('driving');
-        setRouteState({ pharmaId: pharma.id, route: active.coords, routeInfo: { driving, foot } });
+        setRouteState({ pharmaId: pharma.id, route: driving.coords, routeInfo: { driving, foot } });
+      } else {
+        toast.error('Aucun itinéraire trouvé vers cette pharmacie.');
       }
     } catch {
       toast.error("Erreur lors du calcul de l'itinéraire.");
@@ -247,6 +262,11 @@ export default function PharmaciesMapPage() {
     [pharmacies]
   );
 
+  const distancePharmacie = useCallback((pharma) => {
+    if (!userPos || !pharma.latitude || !pharma.longitude) return null;
+    return calculerDistanceKm(userPos[0], userPos[1], parseFloat(pharma.latitude), parseFloat(pharma.longitude));
+  }, [userPos]);
+
   if (isLoading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
   }
@@ -254,7 +274,8 @@ export default function PharmaciesMapPage() {
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)]">
       <div className="w-full lg:w-80 p-4 overflow-y-auto border-r border-gris-bordure bg-white">
-        <h2 className="font-display text-xl text-bleu-nuit mb-4">Pharmacies ({pharmacies.length})</h2>
+        <h2 className="font-display text-xl text-bleu-nuit mb-1">Pharmacies ({pharmacies.length})</h2>
+        <p className="text-sm text-gris-doux mb-4">Trouvez la pharmacie certifiée la plus proche et obtenez votre itinéraire.</p>
         <div className="space-y-3">
           {pharmacies.map((pharma) => (
             <div key={pharma.id}>
@@ -262,6 +283,7 @@ export default function PharmaciesMapPage() {
                 pharmacie={pharma}
                 selected={selected?.id === pharma.id}
                 onClick={() => handleSelectPharmacie(pharma)}
+                distanceKm={distancePharmacie(pharma)}
               />
               {selected?.id === pharma.id && pharma.latitude && pharma.longitude && !routeInfo && (
                 <div className="px-1 pt-2">
@@ -310,11 +332,35 @@ export default function PharmaciesMapPage() {
               position={[parseFloat(pharma.latitude), parseFloat(pharma.longitude)]}
               eventHandlers={{ click: () => handleSelectPharmacie(pharma) }}
             >
-              <Popup>
-                <div className="text-sm">
-                  <p className="font-semibold">{pharma.nomPharmacie}</p>
+              <Popup minWidth={220}>
+                <div className="text-sm space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-bleu-nuit">{pharma.nomPharmacie}</p>
+                    {pharma.statut === 'active' && (
+                      <Badge couleur={STATUTS_PHARMACIE.active.couleur} fond={STATUTS_PHARMACIE.active.fond}>
+                        {STATUTS_PHARMACIE.active.label}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-gray-600">{pharma.addresse}</p>
+                  {(pharma.ouvert_24h || pharma.horaires) && (
+                    <p className="text-gray-600 flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                      {pharma.ouvert_24h ? 'Ouvert 24h/24' : pharma.horaires}
+                    </p>
+                  )}
                   {pharma.numTel && <p className="text-gray-600 font-mono">{pharma.numTel}</p>}
+                  {distancePharmacie(pharma) != null && (
+                    <p className="text-bleu-nuit font-mono text-xs">{formatDistanceKm(distancePharmacie(pharma))}</p>
+                  )}
+                  <button
+                    onClick={() => handleItineraire(pharma)}
+                    disabled={loadingRoute}
+                    className="w-full mt-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-[6px] bg-vert-medical hover:bg-vert-profond disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors duration-200 cursor-pointer"
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    {loadingRoute ? 'Calcul...' : "Obtenir l'itinéraire"}
+                  </button>
                 </div>
               </Popup>
             </Marker>

@@ -27,3 +27,11 @@ export function importerCatalogueAPI(fichier) {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 }
+
+export function apercuImportCatalogueAPI(fichier) {
+  const formData = new FormData();
+  formData.append('fichier', fichier);
+  return axiosInstance.post('/ma-pharmacie/catalogue/import/apercu', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}
