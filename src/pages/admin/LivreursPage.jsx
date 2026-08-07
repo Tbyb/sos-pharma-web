@@ -1,27 +1,64 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Truck, Ban, RotateCcw } from 'lucide-react';
+import { Truck, Ban, RotateCcw, Plus } from 'lucide-react';
 import {
-  useLivreurs, useLivreurMissions, useSuspendreLivreur, useReactiverLivreur,
+  useLivreurs, useLivreurMissions, useSuspendreLivreur, useReactiverLivreur, useCreerLivreur,
 } from '../../hooks/useLivreurs';
 import Card from '../../components/atoms/Card';
 import Badge from '../../components/atoms/Badge';
 import Skeleton from '../../components/atoms/Skeleton';
 import Modal from '../../components/atoms/Modal';
+import Button from '../../components/atoms/Button';
+import FormInput from '../../components/atoms/FormInput';
 import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import Alert from '../../components/atoms/Alert';
 import { formatDate } from '../../utils/formatters';
 import { STATUTS_LIVRAISON } from '../../utils/constants';
 
+const FORM_VIDE = { prenom: '', nom: '', email: '', telephone: '' };
+
 export default function LivreursPage() {
   const [missionsLivreurId, setMissionsLivreurId] = useState(null);
   const [livreurASuspendre, setLivreurASuspendre] = useState(null);
   const [livreurAReactiver, setLivreurAReactiver] = useState(null);
+  const [ajoutOuvert, setAjoutOuvert] = useState(false);
+  const [form, setForm] = useState(FORM_VIDE);
+  const [erreurs, setErreurs] = useState({});
 
   const { data, isLoading, isError, error } = useLivreurs();
   const { data: missionsRes, isLoading: loadingMissions } = useLivreurMissions(missionsLivreurId);
   const suspendre = useSuspendreLivreur();
   const reactiver = useReactiverLivreur();
+  const creerLivreur = useCreerLivreur();
+
+  const fermerAjout = () => {
+    setAjoutOuvert(false);
+    setForm(FORM_VIDE);
+    setErreurs({});
+  };
+
+  const handleChangeForm = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const soumettreAjout = (e) => {
+    e.preventDefault();
+    setErreurs({});
+    creerLivreur.mutate(form, {
+      onSuccess: () => {
+        toast.success('Livreur créé. Ses identifiants lui ont été envoyés par email.');
+        fermerAjout();
+      },
+      onError: (err) => {
+        const validation = err.response?.data?.errors;
+        if (validation) {
+          setErreurs(Object.fromEntries(Object.entries(validation).map(([k, v]) => [k, v[0]])));
+        } else {
+          toast.error(err.response?.data?.message || 'Une erreur est survenue.');
+        }
+      },
+    });
+  };
 
   const livreurs = data?.data || [];
   const missions = missionsRes?.data || [];
@@ -46,6 +83,12 @@ export default function LivreursPage() {
 
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setAjoutOuvert(true)}>
+          <Plus className="w-4 h-4" /> Ajouter un livreur
+        </Button>
+      </div>
+
       {isError && (
         <Alert variant="error" className="mb-4">
           {error?.response?.data?.message || 'Impossible de charger les livreurs.'}
@@ -158,6 +201,24 @@ export default function LivreursPage() {
         confirmLabel="Réactiver"
         loading={reactiver.isPending}
       />
+
+      <Modal open={ajoutOuvert} onClose={fermerAjout} title="Ajouter un livreur">
+        <form onSubmit={soumettreAjout} className="space-y-4">
+          <p className="text-sm text-gris-doux -mt-1">
+            Le livreur recevra ses identifiants de connexion (email et mot de passe) par email, à utiliser dans l'application mobile.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormInput label="Prénom" name="prenom" value={form.prenom} onChange={handleChangeForm} error={erreurs.prenom} required />
+            <FormInput label="Nom" name="nom" value={form.nom} onChange={handleChangeForm} error={erreurs.nom} required />
+          </div>
+          <FormInput label="Email" name="email" type="email" value={form.email} onChange={handleChangeForm} error={erreurs.email} required />
+          <FormInput label="Téléphone" name="telephone" value={form.telephone} onChange={handleChangeForm} error={erreurs.telephone} />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={fermerAjout}>Annuler</Button>
+            <Button type="submit" loading={creerLivreur.isPending}>Créer le livreur</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
