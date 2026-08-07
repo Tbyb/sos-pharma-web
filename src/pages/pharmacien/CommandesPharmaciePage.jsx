@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
-  useCommandesPharmacie, useAccepterCommande, useRefuserCommande, useMarquerPrete,
+  useCommandesPharmacie, useCommandePharmacieDetail,
+  useAccepterCommande, useRefuserCommande, useMarquerPrete,
 } from '../../hooks/useCommandes';
 import CommandePharmacienCard from '../../components/molecules/CommandePharmacienCard';
 import CommandeDetails from '../../components/molecules/CommandeDetails';
@@ -24,11 +26,29 @@ export default function CommandesPharmaciePage() {
   const [commandeDetail, setCommandeDetail] = useState(null);
   const [refusCommande, setRefusCommande] = useState(null);
   const [motif, setMotif] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data, isLoading, isError, error } = useCommandesPharmacie({ statut: onglet || undefined, page });
   const accepter = useAccepterCommande();
   const refuser = useRefuserCommande();
   const marquerPrete = useMarquerPrete();
+
+  // Arrivée depuis une notification (?commande=ID) : ouvre directement la modale de
+  // détail, même si cette commande n'est pas dans l'onglet/page actuellement affiché.
+  const idCommandeCiblee = searchParams.get('commande');
+  const { data: detailCible } = useCommandePharmacieDetail(idCommandeCiblee);
+  const commandeCiblee = idCommandeCiblee ? detailCible?.data : null;
+  const commandeAffichee = commandeDetail || commandeCiblee;
+
+  const fermerDetail = () => {
+    setCommandeDetail(null);
+    if (idCommandeCiblee) {
+      setSearchParams((params) => {
+        params.delete('commande');
+        return params;
+      }, { replace: true });
+    }
+  };
 
   const commandes = data?.data || [];
   const meta = data?.meta || {};
@@ -127,8 +147,8 @@ export default function CommandesPharmaciePage() {
         </>
       ) : null}
 
-      <Modal open={!!commandeDetail} onClose={() => setCommandeDetail(null)} title="Détail de la commande">
-        {commandeDetail && <CommandeDetails commande={commandeDetail} />}
+      <Modal open={!!commandeAffichee} onClose={fermerDetail} title="Détail de la commande">
+        {commandeAffichee && <CommandeDetails commande={commandeAffichee} />}
       </Modal>
 
       <ConfirmDialog

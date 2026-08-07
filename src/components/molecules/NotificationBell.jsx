@@ -27,7 +27,9 @@ function lienNotification(notification, role) {
     return '/pharmacien/catalogue';
   }
   if (data.idCommande) {
-    return role === 'pharmacien' ? '/pharmacien/commandes' : `/patient/commandes/${data.idCommande}`;
+    return role === 'pharmacien'
+      ? `/pharmacien/commandes?commande=${data.idCommande}`
+      : `/patient/commandes/${data.idCommande}`;
   }
   if (data.idPharmacie) {
     return '/pharmacien/pharmacie';

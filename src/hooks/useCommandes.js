@@ -10,6 +10,7 @@ import {
   getAdminCommandesAPI,
   getAdminCommandeDetailAPI,
   getCommandesPharmacieAPI,
+  getCommandePharmacieDetailAPI,
   accepterCommandeAPI,
   refuserCommandeAPI,
   marquerPreteAPI,
@@ -104,6 +105,19 @@ export function useCommandesPharmacie(params = {}) {
   return useQuery({
     queryKey: ['commandes-pharmacie', params],
     queryFn: () => getCommandesPharmacieAPI(params).then((res) => res.data),
+  });
+}
+
+/**
+ * Détail d'une commande précise, indépendamment de l'onglet/page affiché dans la
+ * liste — utilisé pour ouvrir la modale directement depuis une notification.
+ * @param {string|number} id
+ */
+export function useCommandePharmacieDetail(id) {
+  return useQuery({
+    queryKey: ['commandes-pharmacie', 'detail', id],
+    queryFn: () => getCommandePharmacieDetailAPI(id).then((res) => res.data),
+    enabled: !!id,
   });
 }
 
