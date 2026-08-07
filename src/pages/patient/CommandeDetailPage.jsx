@@ -7,7 +7,7 @@ import Badge from '../../components/atoms/Badge';
 import ConfirmDialog from '../../components/molecules/ConfirmDialog';
 import { formatMontant, formatDate } from '../../utils/formatters';
 import { STATUTS_COMMANDE } from '../../utils/constants';
-import { ArrowLeft, Package, MapPin, Truck, Store, Ban, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, Truck, Store, Ban, Trash2, Edit, Receipt } from 'lucide-react';
 
 export default function CommandeDetailPage() {
   const { id } = useParams();
@@ -66,9 +66,20 @@ export default function CommandeDetailPage() {
           Retour aux commandes
         </Link>
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
           <h1 className="font-display text-2xl text-bleu-nuit">Commande #{commande.id}</h1>
-          <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
+          <div className="flex items-center gap-3">
+            <Badge couleur={statut.couleur} fond={statut.fond}>{statut.label}</Badge>
+            {commande.paiement?.statut_paiement === 'complété' && (
+              <Link
+                to={`/patient/commandes/${id}/ticket`}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-vert-medical hover:text-vert-profond transition-colors duration-200"
+              >
+                <Receipt className="w-4 h-4" />
+                Ticket de paiement
+              </Link>
+            )}
+          </div>
         </div>
 
         {statutKey === 'refusee' && commande.motif_refus && (
