@@ -2,7 +2,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar,
 } from 'recharts';
 import { Link } from 'react-router-dom';
-import { Clock, Package, CreditCard, Pill, AlertTriangle, TriangleAlert, ArrowRight } from 'lucide-react';
+import { Clock, Package, CreditCard, Pill, AlertTriangle, ArrowRight } from 'lucide-react';
 import Skeleton from '../atoms/Skeleton';
 import StatCard from '../molecules/StatCard';
 
@@ -157,30 +157,34 @@ export default function PharmacienDashboardStats({ stats = {}, isLoading }) {
           </div>
         </div>
 
+        {/* Seules les ruptures critiques (action immédiate requise) sont listées nommément ;
+            le stock faible reste résumé dans son compteur ci-dessus pour rester lisible
+            quel que soit le nombre de produits au catalogue. */}
         {stock.alertes?.length ? (
           <div className="border-t border-gris-bordure pt-4 space-y-1">
-            {stock.alertes.map((alerte) => {
-              const critique = alerte.niveau === 'critique';
-              return (
-                <div key={alerte.idStock} className={`flex items-center justify-between gap-3 px-3 py-2 rounded-[6px] border-l-[3px] ${critique ? 'border-danger bg-[#FEE2E2]/40' : 'border-orange-corail bg-[#FFF0E9]/50'}`}>
-                  <span className="flex items-center gap-2 min-w-0">
-                    {critique ? <AlertTriangle className="w-4 h-4 text-danger shrink-0" /> : <TriangleAlert className="w-4 h-4 text-orange-corail shrink-0" />}
-                    <span className="text-sm text-bleu-nuit truncate">{alerte.medicament}</span>
-                  </span>
-                  <span className={`text-xs font-mono font-medium shrink-0 ${critique ? 'text-danger' : 'text-orange-corail'}`}>
-                    {alerte.stock_actuel} unité{alerte.stock_actuel > 1 ? 's' : ''}
-                  </span>
-                </div>
-              );
-            })}
+            <p className="text-xs text-gris-doux uppercase tracking-wide mb-2">À traiter en priorité</p>
+            {stock.alertes.map((alerte) => (
+              <div key={alerte.idStock} className="flex items-center justify-between gap-3 px-3 py-2 rounded-[6px] border-l-[3px] border-danger bg-[#FEE2E2]/40">
+                <span className="flex items-center gap-2 min-w-0">
+                  <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+                  <span className="text-sm text-bleu-nuit truncate">{alerte.medicament}</span>
+                </span>
+                <span className="text-xs font-mono font-medium shrink-0 text-danger">
+                  {alerte.stock_actuel} unité{alerte.stock_actuel > 1 ? 's' : ''}
+                </span>
+              </div>
+            ))}
             {stock.total_alertes > stock.alertes.length && (
-              <p className="text-xs text-gris-doux text-center pt-2">
-                +{stock.total_alertes - stock.alertes.length} autre(s) produit(s) à surveiller
-              </p>
+              <Link
+                to="/pharmacien/catalogue"
+                className="block text-xs text-vert-medical hover:text-vert-profond text-center pt-2 transition-colors duration-200"
+              >
+                +{stock.total_alertes - stock.alertes.length} autre(s) rupture(s) critique(s) — voir le catalogue
+              </Link>
             )}
           </div>
         ) : (
-          <p className="text-sm text-gris-doux text-center py-4 border-t border-gris-bordure">Aucune alerte de stock pour le moment.</p>
+          <p className="text-sm text-gris-doux text-center py-4 border-t border-gris-bordure">Aucune rupture critique pour le moment.</p>
         )}
       </div>
     </div>
