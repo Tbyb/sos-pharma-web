@@ -10,14 +10,7 @@ import Card from '../../components/atoms/Card';
 import FormInput from '../../components/atoms/FormInput';
 import { formatMontant } from '../../utils/formatters';
 import { geocoderInverse } from '../../utils/geo';
-import { MapPin, Truck, Store, Smartphone, CreditCard, LocateFixed, Loader2 } from 'lucide-react';
-
-const MODES_PAIEMENT = [
-  { id: 'wave', nom: 'Wave', icone: Smartphone },
-  { id: 'orange_money', nom: 'Orange Money', icone: Smartphone },
-  { id: 'free_money', nom: 'Free Money', icone: Smartphone },
-  { id: 'carte', nom: 'Carte bancaire', icone: CreditCard },
-];
+import { MapPin, Truck, Store, LocateFixed, Loader2 } from 'lucide-react';
 
 export default function CommandePage() {
   const { items, total, pharmacieId } = usePanier();
@@ -27,7 +20,6 @@ export default function CommandePage() {
   const estimerLivraison = useEstimerLivraison();
 
   const [mode, setMode] = useState('retrait');
-  const [modePaiement, setModePaiement] = useState('wave');
   const [adresse, setAdresse] = useState('');
   const [loading, setLoading] = useState(false);
   const [chargementAdresse, setChargementAdresse] = useState(false);
@@ -105,28 +97,14 @@ export default function CommandePage() {
       const commande = resCommande.data || resCommande;
       const commandeId = commande.id;
 
-      const resPaiement = await initierPaiement.mutateAsync({
-        idCommande: commandeId,
-        mode_paiement: modePaiement,
-      });
-
+      const resPaiement = await initierPaiement.mutateAsync({ idCommande: commandeId });
       const urlPaiement = resPaiement.data?.url_paiement || resPaiement.url_paiement;
-      const reference = resPaiement.data?.reference || resPaiement.reference;
 
-      if (urlPaiement && !urlPaiement.includes('/simulation')) {
-        window.location.href = urlPaiement;
-        return;
+      if (!urlPaiement) {
+        throw new Error("Impossible d'obtenir l'URL de paiement.");
       }
 
-      navigate(`/patient/paiement/${commandeId}`, {
-        state: {
-          reference,
-          modePaiement,
-          montant: commande.montant_total ?? total,
-          montantMedicaments: commande.montant_medicaments ?? total,
-          fraisLivraison: commande.frais_livraison ?? 0,
-        },
-      });
+      window.location.href = urlPaiement;
     } catch (err) {
       toast.error(err.response?.data?.message || 'Une erreur est survenue lors de la commande');
     } finally {
@@ -228,26 +206,9 @@ export default function CommandePage() {
           )}
         </Card>
 
-        <Card className="mb-6">
-          <h2 className="font-medium text-bleu-nuit mb-4">Mode de paiement</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {MODES_PAIEMENT.map((mp) => (
-              <button
-                key={mp.id}
-                type="button"
-                onClick={() => setModePaiement(mp.id)}
-                className={`p-4 rounded-[8px] border-2 text-center cursor-pointer transition-colors duration-200 ${
-                  modePaiement === mp.id
-                    ? 'border-vert-medical bg-vert-menthe'
-                    : 'border-gris-bordure hover:border-vert-medical/50'
-                }`}
-              >
-                <mp.icone className={`w-6 h-6 mx-auto mb-2 ${modePaiement === mp.id ? 'text-vert-medical' : 'text-gris-doux'}`} />
-                <p className="text-sm font-medium text-bleu-nuit">{mp.nom}</p>
-              </button>
-            ))}
-          </div>
-        </Card>
+        <p className="text-xs text-gris-doux text-center mb-3">
+           mode de paiement disponible (Wave, Orange Money, Free Money ou carte)
+        </p>
 
         <Button
           onClick={handleCommander}
