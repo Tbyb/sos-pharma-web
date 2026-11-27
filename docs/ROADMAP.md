@@ -233,7 +233,7 @@ GET /api/v1/pharmacies/{id}
 ### Objectifs
 - Panier de commande
 - Passage de commande + choix mode recuperation
-- Paiement DexchangePay
+- Paiement mobile (Wave, Orange Money, Free Money, carte)
 - Suivi commandes
 - Profil patient
 
@@ -268,7 +268,7 @@ GET /api/v1/pharmacies/{id}
 3. Clique "Commander" -> /patient/commander
 4. Choisit mode: "Livraison" ou "Retrait en pharmacie"
 5. Si livraison: saisit adresse
-6. Initie paiement DexchangePay
+6. Initie le paiement
 7. Redirection vers page paiement externe
 8. Callback -> commande creee avec statut "en_cours"
 ```
