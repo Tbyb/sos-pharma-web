@@ -1,5 +1,7 @@
 # SOS-Pharma — Application web
 
+> 🇬🇧 **English summary:** SOS-Pharma is a web platform that helps people in Dakar, Senegal, search for medicines, compare prices across certified pharmacies, find the nearest one on a map and order online (pickup or home delivery). This repository is the React + Vite web front end, with role-based spaces for patients, pharmacists and administrators, an AI chatbot, and an end-to-end Playwright test suite. The Laravel backend and the mobile app live in separate private repositories (code available on request). The rest of this README is in French.
+
 **SOS-Pharma** est une plateforme qui aide les habitants de Dakar (Sénégal) à trouver des médicaments, comparer les prix entre pharmacies certifiées, localiser la plus proche et commander en ligne, avec retrait en pharmacie ou livraison à domicile.
 
 Ce dépôt contient le **front-end web** (React + Vite) de la plateforme. Il s'adresse à quatre types d'utilisateurs : visiteurs, patients, pharmaciens et administrateurs.
